@@ -3,7 +3,7 @@ import asyncStorage from './asyncStorage'
 import {JobStorageStateManager} from './jobStorageState'
 
 const EMPTY_STATE = {}
-
+const SPY_JOB = 'SPY_JOB'
 const spy = async (callMe) => {
 	callMe.call()
 }
@@ -33,7 +33,7 @@ describe('Jobs run correctly', () => {
 	it('On load done jobs should be deleted, in progress jobs should run', async () => {
 		const storeName = 'store'
 		const stateManager = JobStorageStateManager(storeName)
-		const SpyJob = Job('SpyJob')
+		const SpyJob = Job(SPY_JOB)
 
 		const shouldBeCalled = createCallMe()
 		const shouldNotBeCalled = createCallMe()
@@ -43,7 +43,7 @@ describe('Jobs run correctly', () => {
 
 		const client = await PersistentJobClient(
 			storeName, 
-			[{jobType: 'SpyJob', handleFunction: spy}],
+			[{jobType: SPY_JOB, handleFunction: spy}],
 			asyncStorage(stateManager.state)
 		)
 
@@ -55,17 +55,17 @@ describe('Jobs run correctly', () => {
 
 	it('New jobs should run', async () => {
 		const storeName = 'store'
-		const SpyJob = Job('SpyJob')
+		const SpyJob = Job(SPY_JOB)
 
 		const shouldBeCalled = createCallMe()
 
 		const client = await PersistentJobClient(
 			storeName, 
-			[{jobType: 'SpyJob', handleFunction: spy}],
+			[{jobType: SPY_JOB, handleFunction: spy}],
 			asyncStorage(EMPTY_STATE)
 		)
 
-		client.runJob('SpyJob', shouldBeCalled)
+		client.runJob(SPY_JOB, shouldBeCalled)
 
 		await sleep(1)
 		

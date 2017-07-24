@@ -9,11 +9,16 @@ export type JobRunnerType = {
 export function JobRunner (
 	jobHandlersMap: Map<string, JobHandler>, 
 	jobPersister: JobPersisterType, initialJobs?: Array<JobNumbered>, 
-	modifyJobSubject?: (jobSubject: Subject<JobNumbered>) => Subject<JobNumbered>
+	modifyJobSubject?: (jobSubject: Subject<JobNumbered>) => Subject<JobNumbered>,
+	modifyRetrySubject?: (retrySubject: Subject<JobNumbered>) => Subject<JobNumbered> 
 ) {
+	const jobSubject = new Subject<JobNumbered>()
+	const job$ = modifyJobSubject ? modifyJobSubject(jobSubject) : jobSubject
+	const retrySubject = new Subject<JobNumbered>()
+	const retry$ = modifyRetrySubject ? modifyRetrySubject(retrySubject) : retrySubject
 
-	const jobSubject = modifyJobSubject ? modifyJobSubject(new Subject<JobNumbered>()) : new Subject<JobNumbered>()
 	const addJob = (job: JobNumbered) => jobSubject.next(job)
+	const addRetry = (job: JobNumbered) => retrySubject.next(job)
 
 	async function jobObserver(job: JobNumbered) {
 		const jobHandler = jobHandlersMap.get(job.jobType)
@@ -22,11 +27,12 @@ export function JobRunner (
 			await jobHandler.handleFunction(...job.args)
 			await jobPersister.clearPersistedJob(job)
 		} catch (e) {
-			addJob(job)
+			addRetry(job)
 		}
 	}
 
-	Observable.concat(Observable.from(initialJobs), jobSubject).subscribe(jobObserver)
+	Observable.concat(Observable.from(initialJobs), job$).subscribe(jobObserver)
+	retry$.subscribe(addJob)
 
 	async function runJob(jobType: string, ...args: Array<any>) {
 		if (!jobHandlersMap.has(jobType)) {

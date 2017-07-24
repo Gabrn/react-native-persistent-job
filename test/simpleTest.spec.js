@@ -2,6 +2,8 @@ import {PersistentJobClient} from '../src/persistentJobClient'
 import asyncStorage from './asyncStorage'
 import {JobStorageStateManager} from './jobStorageState'
 
+const EMPTY_STATE = {}
+
 const spy = async (callMe) => {
 	callMe.call()
 }
@@ -27,8 +29,8 @@ const sleep = time => new Promise(res => setTimeout(() => res(), time))
 
 const assertFalse = () => setTimeout(() => expect(true).toBeFalsy, 10)
 
-describe('Job run after restart', () => {
-	it('Done jobs should be deleted, in progress jobs should run', async () => {
+describe('Jobs run correctly', () => {
+	it('On load done jobs should be deleted, in progress jobs should run', async () => {
 		const storeName = 'store'
 		const stateManager = JobStorageStateManager(storeName)
 		const SpyJob = Job('SpyJob')
@@ -45,9 +47,28 @@ describe('Job run after restart', () => {
 			asyncStorage(stateManager.state)
 		)
 
-		await sleep(100)
+		await sleep(1)
 
 		expect(shouldBeCalled.isCalled()).toBeTruthy()
 		expect(shouldNotBeCalled.isCalled()).toBeFalsy()
+	})
+
+	it('New jobs should run', async () => {
+		const storeName = 'store'
+		const SpyJob = Job('SpyJob')
+
+		const shouldBeCalled = createCallMe()
+
+		const client = await PersistentJobClient(
+			storeName, 
+			[{jobType: 'SpyJob', handleFunction: spy}],
+			asyncStorage(EMPTY_STATE)
+		)
+
+		client.runJob('SpyJob', shouldBeCalled)
+
+		await sleep(1)
+		
+		expect(shouldBeCalled.isCalled()).toBeTruthy()
 	})
 })

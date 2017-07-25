@@ -3058,6 +3058,12 @@ react-devtools-core@2.3.1:
     shell-quote "^1.6.1"
     ws "^2.0.3"
 
+react-native-persistent-job:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/react-native-persistent-job/-/react-native-persistent-job-1.0.0.tgz#2a738e645f0357298a1ab97033070dbff69a4c33"
+  dependencies:
+    rxjs "^5.4.2"
+
 react-native@0.46.4:
   version "0.46.4"
   resolved "https://registry.yarnpkg.com/react-native/-/react-native-0.46.4.tgz#281bbcc165e5c36b4c8eaa868e6768543e811bcb"
@@ -3384,7 +3390,7 @@ rx-lite@*, rx-lite@^4.0.8:
   version "4.0.8"
   resolved "https://registry.yarnpkg.com/rx-lite/-/rx-lite-4.0.8.tgz#0b1e11af8bc44836f04a6407e92da42467b79444"
 
-rxjs:
+rxjs, rxjs@^5.4.2:
   version "5.4.2"
   resolved "https://registry.yarnpkg.com/rxjs/-/rxjs-5.4.2.tgz#2a3236fcbf03df57bae06fd6972fd99e5c08fcf7"
   dependencies:

@@ -1,13 +1,15 @@
 {
-  "name": "react-native-persist-job",
-  "version": "1.0.0",
+  "name": "react-native-persistent-job",
+  "version": "1.0.1",
+  "repository": "https://github.com/GabiNir/react-native-persistent-job",
   "description": "",
-  "main": "index.ts",
+  "main": "./src/persistentJobClient",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "build": "rm -rf ./src && tsc"
   },
   "author": "Gabi Nir <gabinir@gmail.com>",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "rxjs": "^5.4.2"
   },

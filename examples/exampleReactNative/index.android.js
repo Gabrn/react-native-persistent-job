@@ -12,7 +12,7 @@ import {
   View,
   AsyncStorage
 } from 'react-native';
-import {PersistentJobClient} from 'src/PersistentJobClient'
+import {PersistentJobClient} from 'react-native-persistent-job'
 
 const sleep = time => new Promise(res => setTimeout(() => res(), time))
 const sleepAndWarn = async (msg, time) => {

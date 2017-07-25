@@ -1,15 +1,25 @@
 {
     "compilerOptions": {
         "outDir": "./src/",
-        "sourceMap": false,
+        "rootDir": "./lib/",
+        "sourceMap": true,
         "noImplicitAny": false,
         "module": "commonjs",
-        "target": "es2017",
-				"lib": [
-            "dom",
-            "es2015",
-            "es5",
-            "es6"
-        ]
-    }
+        "target": "es6",
+        "moduleResolution": "node",
+        "allowSyntheticDefaultImports": true,
+        "allowJs": true,
+        //"importHelpers": true,
+        "strict": true,
+        "forceConsistentCasingInFileNames": true,
+        "noImplicitReturns": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        "suppressImplicitAnyIndexErrors": true
+    },
+    "include": [
+        "lib/**/*",
+        "__tests__/**/*",
+        "types/*.d.ts"
+    ]
 }

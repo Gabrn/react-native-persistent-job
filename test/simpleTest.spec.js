@@ -30,7 +30,7 @@ const sleep = time => new Promise(res => setTimeout(() => res(), time))
 const assertFalse = () => setTimeout(() => expect(true).toBeFalsy, 10)
 
 describe('Jobs run correctly', () => {
-	it.skip('On load done jobs should be deleted, in progress jobs should run', async () => {
+	it('On load done jobs should be deleted, in progress jobs should run', async () => {
 		const storeName = 'store'
 		const stateManager = JobStorageStateManager(storeName)
 		const SpyJob = Job(SPY_JOB)

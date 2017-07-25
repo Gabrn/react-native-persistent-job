@@ -8,7 +8,8 @@ const prefix = "@react-native-persisted-job"
 
 export type AsyncStorage = {
 	setItem: (key: string, item: any) => Promise<void>,
-	getItem: (key: string) => Promise<any>
+	getItem: (key: string) => Promise<any>,
+	removeItem: (key: string) => Promise<void>
 }
 
 export type JobPersisterType = {
@@ -24,8 +25,7 @@ export async function JobPersister (
 ): Promise<JobPersisterType> {
 
 	const serialNumberKey = `${prefix}:${storeName}:currentSerialNumber`
-	const currentSerialNumberStr = await asyncStorage.getItem(serialNumberKey)
-  let currentSerialNumber = currentSerialNumberStr ? parseInt(currentSerialNumberStr) : 0
+  let currentSerialNumber = await asyncStorage.getItem(serialNumberKey) || 0
 
 	function getJobKey(serialNumber: number) {
 		return `${prefix}:${storeName}:${serialNumber}`
@@ -35,21 +35,21 @@ export async function JobPersister (
 		currentSerialNumber++
 		const jobNumbered: JobNumbered = {...job, serialNumber: currentSerialNumber}
 
-		await asyncStorage.setItem(serialNumberKey, currentSerialNumber + '')
-		await asyncStorage.setItem(getJobKey(currentSerialNumber), JSON.stringify({...jobNumbered, isDone: false}))
+		await asyncStorage.setItem(serialNumberKey, currentSerialNumber)
+		await asyncStorage.setItem(getJobKey(currentSerialNumber), {...jobNumbered, isDone: false})
 
 		return jobNumbered
 	}
 
 	async function clearPersistedJob(job: JobNumbered): Promise<void> {
-		await asyncStorage.setItem(getJobKey(job.serialNumber), JSON.stringify({...job, isDone: true}))
+		await asyncStorage.setItem(getJobKey(job.serialNumber), {...job, isDone: true})
 	}
 
 	async function fetchAllPersistedJobs(): Promise<Array<PersistedJob>> {
 		const persistedJobs: Array<PersistedJob> = []
 
 		for (let i = 1; i <= currentSerialNumber; i++) {
-			persistedJobs.push(JSON.parse(await asyncStorage.getItem(getJobKey(i))))
+			persistedJobs.push(await asyncStorage.getItem(getJobKey(i)))
 		}
 
 		return persistedJobs
@@ -60,14 +60,14 @@ export async function JobPersister (
 		const jobsInProgress: Array<PersistedJob> = allJobs.filter(job => !job.isDone).map((job, i) => ({...job, serialNumber: i+1}))
 
 		for (let i = jobsInProgress.length + 1; i <= currentSerialNumber; i++) {
-			asyncStorage.setItem(getJobKey(i), 'undefined')
+			await asyncStorage.removeItem(getJobKey(i))
 		}
 
 		currentSerialNumber = jobsInProgress.length
-		await asyncStorage.setItem(serialNumberKey, currentSerialNumber  + '')
+		await asyncStorage.setItem(serialNumberKey, currentSerialNumber)
 
 		await Promise.all(
-			jobsInProgress.map(job => asyncStorage.setItem(getJobKey(job.serialNumber), JSON.stringify(job)))
+			jobsInProgress.map(job => asyncStorage.setItem(getJobKey(job.serialNumber), job))
 		)
 	}
 

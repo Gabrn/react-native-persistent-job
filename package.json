@@ -1,9 +1,9 @@
 {
   "name": "react-native-persistent-job",
-  "version": "1.0.1",
+  "version": "1.0.4",
   "repository": "https://github.com/GabiNir/react-native-persistent-job",
   "description": "",
-  "main": "./src/persistentJobClient",
+  "main": "./src/index",
   "scripts": {
     "test": "jest",
     "build": "rm -rf ./src && tsc"

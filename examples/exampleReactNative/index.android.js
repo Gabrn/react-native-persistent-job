@@ -12,7 +12,7 @@ import {
   View,
   AsyncStorage
 } from 'react-native';
-import {PersistentJobClient} from 'react-native-persistent-job'
+import {PersistentJobClient, transformAsyncStorage} from 'react-native-persistent-job'
 
 const sleep = time => new Promise(res => setTimeout(() => res(), time))
 const sleepAndWarn = async (msg, time) => {
@@ -21,7 +21,11 @@ const sleepAndWarn = async (msg, time) => {
 }
 export default class exampleReactNative extends Component {
   async componentDidMount() {
-    const client = await PersistentJobClient('store', [{jobType: 'sleepAndWarn', handleFunction: sleepAndWarn}], AsyncStorage)
+    const client = await PersistentJobClient(
+      'store', 
+      [{jobType: 'sleepAndWarn', handleFunction: sleepAndWarn}], 
+      transformAsyncStorage(AsyncStorage)
+    )
     client.runJob('sleepAndWarn', 'hello after one second', 1000)
     client.runJob('sleepAndWarn', 'goodBye after ten seconds', 10000)
   }

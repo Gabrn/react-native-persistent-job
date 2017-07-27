@@ -1,14 +1,7 @@
-import {Subject, Observable} from 'rxjs'
-import {Job, JobNumbered, JobHandler} from './JobTypes'
+import {Subject} from 'rxjs'
+import {JobNumbered, JobHandler} from './jobTypes'
 import {JobRunner} from './jobRunner'
 import {JobPersister, AsyncStorage} from './jobPersistence'
-
-type Params = {
-	storeName: string, 
-	jobHandlers: Array<JobHandler>, 
-	asyncStorage: AsyncStorage,
-	modifyJobSubject?: (jobSubject: Subject<JobNumbered>) => Subject<JobNumbered>,
-}
 
 export async function PersistentJobClient (
 	storeName: string, 
@@ -24,7 +17,7 @@ export async function PersistentJobClient (
 	const jobRunner = JobRunner(jobHandlersMap, jobPersister, persistedJobs, modifyJobSubject)
 
 	return {
-		runJob: jobRunner.runJob
+		...jobRunner
 	}
 }
 

@@ -1,7 +1,20 @@
 import {AsyncStorage} from '../jobPersistence'
+import {AsyncStorageStatic} from 'react-native'
 
-export default (asyncStorage: AsyncStorage): AsyncStorage => {
-	const getItem = async (key: string) => {
+export default (
+	asyncStorage: AsyncStorageStatic
+): AsyncStorage => {
+
+	const serializeItem = (item: any) => {
+		if (typeof item === 'object') {
+			return JSON.stringify(item)
+		} else {
+			return item + ''
+		}
+	}
+
+	// public
+	async function getItem(key: string) {
 		const serializedData = <string> await asyncStorage.getItem(key)
 		try {
 			return JSON.parse(serializedData)
@@ -10,17 +23,22 @@ export default (asyncStorage: AsyncStorage): AsyncStorage => {
 		}
 	}
 
-	const setItem = async (key: string, value: any) => {
-		if (typeof value === 'object') {
-			asyncStorage.setItem(key, JSON.stringify(value))
-		} else {
-			asyncStorage.setItem(key, value + '')
-		}
+	// public
+	async function setItem(key: string, value: any) {
+			asyncStorage.setItem(key, serializeItem(value))
+	}
+
+	// public
+	async function multiSet(keyValuePairs: {key: string, value: any}[]) {
+		const pairsAsArray = keyValuePairs.map(({key, value}) => [key, serializeItem(value)])
+		await asyncStorage.multiSet(pairsAsArray)
 	}
 
 	return {
+		removeItem: asyncStorage.removeItem,
+		multiRemove: asyncStorage.multiRemove,
 		getItem,
 		setItem,
-		removeItem: asyncStorage.removeItem
+		multiSet
 	}
 }

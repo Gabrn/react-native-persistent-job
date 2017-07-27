@@ -1,5 +1,5 @@
 import {Subject, Observable} from 'rxjs'
-import {Job, JobNumbered, JobHandler} from './JobTypes'
+import {Job, JobNumbered, JobHandler} from './jobTypes'
 import {JobPersisterType} from './jobPersistence'
 
 export type JobRunnerType = {
@@ -21,7 +21,7 @@ export function JobRunner (
 	const addRetry = (job: JobNumbered) => retrySubject.next(job)
 
 	async function jobObserver(job: JobNumbered) {
-		const jobHandler = jobHandlersMap.get(job.jobType)
+		const jobHandler = <JobHandler>jobHandlersMap.get(job.jobType)
 		
 		try {
 			await jobHandler.handleFunction(...job.args)
@@ -31,9 +31,10 @@ export function JobRunner (
 		}
 	}
 
-	Observable.concat(Observable.from(initialJobs), job$).subscribe(jobObserver)
+	Observable.concat(Observable.from(initialJobs || []), job$).subscribe(jobObserver)
 	retry$.subscribe(addJob)
 
+	// public
 	async function runJob(jobType: string, ...args: Array<any>) {
 		if (!jobHandlersMap.has(jobType)) {
 			throw `Can not handle a job of type ${jobType} because there is no job handler for it`

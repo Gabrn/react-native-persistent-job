@@ -5,7 +5,7 @@ export type Job = {
 }
 
 export type JobNumbered = Job & {
-	serialNumber?: number
+	serialNumber: number
 }
 
 export type JobHandler = {

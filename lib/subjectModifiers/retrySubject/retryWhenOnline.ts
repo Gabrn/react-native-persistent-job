@@ -17,6 +17,7 @@ const retryWhenOnline = (NetInfo) => (subject: Subject<Job>) => {
 					Observable.of(job) : 
 					connectivitySubject.filter(isConnected => isConnected).first().map(_ => job)
 		)
+		.distinctUntilChanged((job, job2) => job !== job2)
 
 	return obs
 }

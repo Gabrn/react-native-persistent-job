@@ -30,13 +30,20 @@ export default (
 
 	// public
 	async function multiSet(keyValuePairs: {key: string, value: any}[]) {
+		if (keyValuePairs.length === 0) return;
 		const pairsAsArray = keyValuePairs.map(({key, value}) => [key, serializeItem(value)])
 		await asyncStorage.multiSet(pairsAsArray)
 	}
 
+	// public
+	async function multiRemove(keys: string[]) {
+		if (keys.length === 0) return;
+		await asyncStorage.multiRemove(keys)
+	}
+
 	return {
 		removeItem: asyncStorage.removeItem,
-		multiRemove: asyncStorage.multiRemove,
+		multiRemove,
 		getItem,
 		setItem,
 		multiSet

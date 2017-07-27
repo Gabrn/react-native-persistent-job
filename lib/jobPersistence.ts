@@ -63,7 +63,7 @@ export async function JobPersister (
 	// public
 	async function clearDoneJobsFromStore(): Promise<void> {
 		const allJobs = await fetchAllPersistedJobs()
-		const jobsInProgress: Array<PersistedJob> = allJobs.filter(job => !job.isDone).map((job, i) => ({...job, serialNumber: i+1}))
+		const jobsInProgress: Array<PersistedJob> = allJobs.filter(job => job && !job.isDone).map((job, i) => ({...job, serialNumber: i+1}))
 
 		const itemsToRemove: Array<string> = []
 		for (let i = jobsInProgress.length + 1; i <= currentSerialNumber; i++) {
@@ -72,6 +72,7 @@ export async function JobPersister (
 
 		const itemsToUpdate = jobsInProgress.map(job => ({key: getJobKey(job.serialNumber), value: job}))
 		currentSerialNumber = jobsInProgress.length
+
 		await Promise.all([
 			asyncStorage.multiSet(itemsToUpdate),
 			asyncStorage.multiRemove(itemsToRemove),

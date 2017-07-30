@@ -1,12 +1,13 @@
 {
   "name": "react-native-persistent-job",
-  "version": "1.0.11",
+  "version": "1.0.13",
   "repository": "https://github.com/GabiNir/react-native-persistent-job",
   "description": "",
   "main": "./src/index",
   "scripts": {
-    "test": "jest",
-    "build": "rm -rf ./src && tsc"
+    "test": "npm run build && jest",
+    "build": "rm -rf ./src && tsc",
+    "prepublish": "npm run build"
   },
   "author": "Gabi Nir <gabinir@gmail.com>",
   "license": "MIT",

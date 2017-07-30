@@ -1,26 +1,32 @@
-import {AsyncStorageStatic} from 'react-native'
+import {Subject} from 'rxjs'
+import {AsyncStorage} from 'react-native'
 import {PersistentJobClient as _PersistentJobClient, PersistentJobClientType} from './persistentJobClient'
 import _transformAsyncStorage from './utils/transformAsyncStorage'
-import {JobHandler} from './jobTypes'
-
+import {JobNumbered, JobHandler} from './jobTypes'
+import * as _streamModifiers from './streamModifiers'
 export const transformAsyncStorage = _transformAsyncStorage
 export const PersistentJobClient = _PersistentJobClient
+export const streamModifiers = _streamModifiers
 
 type Params = {
 	storeName?: string, 
 	jobHandlers: JobHandler[], 
-	asyncStorage: AsyncStorageStatic
+	asyncStorage: AsyncStorage,
+	modifyJobStream?: (jobSubject: Subject<JobNumbered>) => Subject<JobNumbered>,
+	modifyRetryStream?: (retrySubject: Subject<JobNumbered>) => Subject<JobNumbered> 
 }
 
 const storesMap = new Map<string, PersistentJobClientType>()
 
 export default {
-	async initializeApp({storeName, jobHandlers, asyncStorage}: Params): Promise<PersistentJobClientType> {
+	async initializeApp({storeName, jobHandlers, asyncStorage, modifyJobStream, modifyRetryStream}: Params): Promise<PersistentJobClientType> {
 		const storeNameWithDefault = storeName || 'default'
 		const client =  await PersistentJobClient(
 			storeNameWithDefault, 
 			jobHandlers, 
-			transformAsyncStorage(asyncStorage)
+			transformAsyncStorage(asyncStorage),
+			modifyJobStream, 
+			modifyRetryStream
 		)
 
 		storesMap.set(storeNameWithDefault, client)

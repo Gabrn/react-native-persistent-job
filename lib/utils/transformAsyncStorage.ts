@@ -1,8 +1,8 @@
 import {AsyncStorage} from '../jobPersistence'
-import {AsyncStorageStatic} from 'react-native'
+import {AsyncStorage as AsyncStorageReactNative} from 'react-native'
 
 export default (
-	asyncStorage: AsyncStorageStatic
+	asyncStorage: AsyncStorageReactNative
 ): AsyncStorage => {
 
 	const serializeItem = (item: any) => {

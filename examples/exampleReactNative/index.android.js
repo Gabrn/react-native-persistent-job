@@ -10,15 +10,18 @@ import {
   StyleSheet,
   Text,
   View,
-  AsyncStorage
+  AsyncStorage,
+  NetInfo
 } from 'react-native';
-import persistentJob from 'react-native-persistent-job'
+import persistentJob, {streamModifiers} from 'react-native-persistent-job'
 
 const sleep = time => new Promise(res => setTimeout(() => res(), time))
 const sleepAndWarn = async (msg, time) => {
   await sleep(time)
   console.warn(msg)
 }
+
+
 export default class exampleReactNative extends Component {
   async componentDidMount() {
     await persistentJob.initializeApp({
@@ -26,8 +29,24 @@ export default class exampleReactNative extends Component {
       asyncStorage: AsyncStorage
     })
 
+    await persistentJob.initializeApp({
+      storeName: 'online-jobs',
+      jobHandlers: [{jobType: 'sleepAndWarn', handleFunction: sleepAndWarn}],
+      asyncStorage: AsyncStorage,
+      modifyJobStream: streamModifiers.runWhenOnline(NetInfo)(x => x)
+    })
+
     persistentJob.app().runJob('sleepAndWarn', 'hello after one second', 1000)
     persistentJob.app().runJob('sleepAndWarn', 'goodBye after ten seconds', 10000)
+    await sleep(1)
+    persistentJob.app('online-jobs').runJob('sleepAndWarn', 'I will only run online after one second', 1000)
+    persistentJob.app('online-jobs').runJob('sleepAndWarn', 'I will only run online after two seconds', 2000)
+    await sleep(20000)
+    persistentJob.app('online-jobs').runJob(
+      'sleepAndWarn', 
+      `I will be ran after 20 seconds so you can go offline and then run only when online after one second`, 
+       1000
+      )
   }
 
   render() {

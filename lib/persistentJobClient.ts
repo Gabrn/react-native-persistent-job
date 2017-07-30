@@ -10,13 +10,14 @@ export async function PersistentJobClient (
 	jobHandlers: Array<JobHandler>, 
 	asyncStorage: AsyncStorage,
 	modifyJobSubject?: (jobSubject: Subject<JobNumbered>) => Subject<JobNumbered>,
+	modifyRetrySubject?: (retrySubject: Subject<JobNumbered>) => Subject<JobNumbered> 
 ): Promise<PersistentJobClientType> {
 	const jobPersister = await JobPersister(storeName, asyncStorage)
 	const jobHandlersMap = new Map<string, JobHandler>()
 	jobHandlers.forEach(jobHandler => jobHandlersMap.set(jobHandler.jobType, jobHandler))
 	await jobPersister.clearDoneJobsFromStore()
 	const persistedJobs = await jobPersister.fetchAllPersistedJobs()
-	const jobRunner = JobRunner(jobHandlersMap, jobPersister, persistedJobs, modifyJobSubject)
+	const jobRunner = JobRunner(jobHandlersMap, jobPersister, persistedJobs, modifyJobSubject, modifyRetrySubject)
 
 	return {
 		...jobRunner

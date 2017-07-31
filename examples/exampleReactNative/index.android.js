@@ -9,9 +9,7 @@ import {
   AppRegistry,
   StyleSheet,
   Text,
-  View,
-  AsyncStorage,
-  NetInfo
+  View
 } from 'react-native';
 import persistentJob, {streamModifiers} from 'react-native-persistent-job'
 
@@ -25,15 +23,13 @@ const sleepAndWarn = async (msg, time) => {
 export default class exampleReactNative extends Component {
   async componentDidMount() {
     await persistentJob.initializeApp({
-      jobHandlers: [{jobType: 'sleepAndWarn', handleFunction: sleepAndWarn}], 
-      asyncStorage: AsyncStorage
+      jobHandlers: [{jobType: 'sleepAndWarn', handleFunction: sleepAndWarn}],
     })
 
     await persistentJob.initializeApp({
       storeName: 'online-jobs',
       jobHandlers: [{jobType: 'sleepAndWarn', handleFunction: sleepAndWarn}],
-      asyncStorage: AsyncStorage,
-      modifyJobStream: streamModifiers.runWhenOnline(NetInfo)(x => x)
+      modifyJobStream: streamModifiers.runWhenOnline(x => x)
     })
 
     persistentJob.app().runJob('sleepAndWarn', 'hello after one second', 1000)

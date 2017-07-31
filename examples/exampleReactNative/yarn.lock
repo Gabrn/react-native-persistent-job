@@ -3067,8 +3067,8 @@ react-devtools-core@2.3.1:
     ws "^2.0.3"
 
 react-native-persistent-job@^1.0.0:
-  version "1.0.13"
-  resolved "https://registry.yarnpkg.com/react-native-persistent-job/-/react-native-persistent-job-1.0.13.tgz#fb4c03a79b2b54f039f97b01b2b5dcb2789743d7"
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/react-native-persistent-job/-/react-native-persistent-job-1.1.0.tgz#dde5b759fc92d38b5054bdfde216cc7046bd8844"
   dependencies:
     rxjs "^5.4.2"
 

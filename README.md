@@ -59,5 +59,5 @@ await persistentJob.initializeApp({
 	modifyRetryStream: streamModifiers.retryStream.withBackoff.exponential(10, 50)
 })
 
-persistentJob.app('online-jobs').runJob('failureOfAJob', 'I will fail while running')
+persistentJob.app('failing-jobs').runJob('failureOfAJob', 'I will fail while running')
 ```

@@ -54,11 +54,10 @@ import persistentJob, {streamModifiers} from 'react-native-persistent-job'
 ...
 
 await persistentJob.initializeApp({
-	storeName: 'online-jobs',
-	jobHandlers: [{jobType: 'sleepAndWarn', handleFunction: sleepAndWarn}]
+	storeName: 'failing-jobs',
+	jobHandlers: [{jobType: 'failureOfAJob', handleFunction: failureOfAJob}]
 	modifyRetryStream: streamModifiers.retryStream.withBackoff.exponential(10, 50)
 })
 
-persistentJob.app('online-jobs').runJob('sleepAndWarn', 'I will only run online after one second', 1000)
-persistentJob.app('online-jobs').runJob('sleepAndWarn', 'I will only run online after two seconds', 2000)
+persistentJob.app('online-jobs').runJob('failureOfAJob', 'I will fail while running')
 ```

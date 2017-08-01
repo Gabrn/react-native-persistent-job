@@ -1,4 +1,4 @@
-import {Subject} from 'rxjs'
+import {Observable} from 'rxjs'
 import {JobNumbered} from '../jobTypes'
 
-export type StreamModifier = (subject: Subject<JobNumbered>) => Subject<JobNumbered>
+export type StreamModifier = (subject: Observable<JobNumbered>) => Observable<JobNumbered>

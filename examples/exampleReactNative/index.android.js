@@ -29,7 +29,7 @@ export default class exampleReactNative extends Component {
     await persistentJob.initializeApp({
       storeName: 'online-jobs',
       jobHandlers: [{jobType: 'sleepAndWarn', handleFunction: sleepAndWarn}],
-      modifyJobStream: streamModifiers.runWhenOnline(x => x)
+      modifyJobStream: streamModifiers.runWhenOnline
     })
 
     persistentJob.app().runJob('sleepAndWarn', 'hello after one second', 1000)

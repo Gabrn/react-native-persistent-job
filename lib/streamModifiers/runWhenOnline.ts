@@ -1,10 +1,8 @@
 import {NetInfo} from 'react-native'
-import {Subject, Observable} from 'rxjs'
+import {Observable} from 'rxjs'
 import {JobNumbered} from '../jobTypes'
-import {StreamModifier} from './types'
 
-const runWhenOnline = (netInfo: NetInfo) => (composedModifier: StreamModifier) => (subject: Subject<JobNumbered>) => {
-	const modifiedSubject = composedModifier(subject).asObservable()
+const runWhenOnline = (netInfo: NetInfo) => (subject: Observable<JobNumbered>) => {
 	const netInfoObservable: Observable<boolean> = Observable.fromEventPattern(h => netInfo.isConnected.addEventListener('change', <(r: boolean) => void>h))
   const conectivityObservable: Observable<boolean> = Observable.merge(
     Observable.fromPromise(netInfo.isConnected.fetch()),
@@ -12,7 +10,7 @@ const runWhenOnline = (netInfo: NetInfo) => (composedModifier: StreamModifier) =
  )
 
 	const obs = Observable
-		.combineLatest(modifiedSubject, conectivityObservable, (job, isConnected) => ({job, isConnected}))
+		.combineLatest(subject, conectivityObservable, (job, isConnected) => ({job, isConnected}))
 		.flatMap(
 			({job, isConnected}) => 
 				isConnected ? 

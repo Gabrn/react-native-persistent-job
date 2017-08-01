@@ -9,14 +9,13 @@ export type JobRunnerType = {
 export function JobRunner (
 	jobHandlersMap: Map<string, JobHandler>, 
 	jobPersister: JobPersisterType, initialJobs?: Array<JobNumbered>, 
-	modifyJobSubject?: (jobSubject: Subject<JobNumbered>) => Subject<JobNumbered>,
-	modifyRetrySubject?: (retrySubject: Subject<JobNumbered>) => Subject<JobNumbered> 
+	modifyJobSubject?: (jobSubject: Observable<JobNumbered>) => Observable<JobNumbered>,
+	modifyRetrySubject?: (retrySubject: Observable<JobNumbered>) => Observable<JobNumbered> 
 ) {
 	const jobSubject = new Subject<JobNumbered>()
-	const job$ = modifyJobSubject ? modifyJobSubject(jobSubject) : jobSubject
+	const job$ = modifyJobSubject ? modifyJobSubject(jobSubject.asObservable()) : jobSubject.asObservable()
 	const retrySubject = new Subject<JobNumbered>()
-	const retry$ = modifyRetrySubject ? modifyRetrySubject(retrySubject) : retrySubject
-
+	const retry$ = modifyRetrySubject ? modifyRetrySubject(retrySubject.asObservable()) : retrySubject.asObservable()
 	const addJob = (job: JobNumbered) => jobSubject.next(job)
 	const addRetry = (job: JobNumbered) => retrySubject.next(job)
 
@@ -27,7 +26,7 @@ export function JobRunner (
 			await jobHandler.handleFunction(...job.args)
 			await jobPersister.clearPersistedJob(job)
 		} catch (e) {
-			addRetry(job)
+			addRetry({...job})
 		}
 	}
 

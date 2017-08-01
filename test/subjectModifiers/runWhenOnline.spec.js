@@ -37,7 +37,7 @@ describe('Jobs run only when the device is online', () => {
 		const stream = new Subject()
 		const spy = jest.fn()
 		const netInfo = NetInfo()
-		const a = runWhenOnline(netInfo)(x=>x)(stream).subscribe(h => h())
+		const a = runWhenOnline(netInfo)(stream.asObservable()).subscribe(h => h())
 		
 		
 		stream.next(() => spy('first'))

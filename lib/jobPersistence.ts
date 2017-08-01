@@ -28,10 +28,13 @@ export async function JobPersister (
 
 	const serialNumberKey = `${prefix}:${storeName}:currentSerialNumber`
   let currentSerialNumber = await asyncStorage.getItem(serialNumberKey) || 0
-
-	function getJobKey(serialNumber: number) {
-		return `${prefix}:${storeName}:${serialNumber}`
-	} 
+	const stripPersistentFields = (job: JobNumbered) => ({
+		args: job.args, 
+		jobType: job.jobType, 
+		serialNumber: job.serialNumber, 
+		timestamp: job.timestamp
+	})
+	const getJobKey = (serialNumber: number) => `${prefix}:${storeName}:${serialNumber}`
 
 	// public 
 	async function persistJob(job: Job): Promise<JobNumbered> {
@@ -39,7 +42,7 @@ export async function JobPersister (
 		const jobNumbered: JobNumbered = {...job, serialNumber: currentSerialNumber}
 
 		await asyncStorage.setItem(serialNumberKey, currentSerialNumber)
-		await asyncStorage.setItem(getJobKey(currentSerialNumber), {...jobNumbered, isDone: false})
+		await asyncStorage.setItem(getJobKey(currentSerialNumber), {...stripPersistentFields(jobNumbered), isDone: false})
 
 		return jobNumbered
 	}

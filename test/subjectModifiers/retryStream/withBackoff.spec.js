@@ -3,8 +3,8 @@ import {Subject} from 'rxjs'
 
 const sleep = time => new Promise(res => setTimeout(() => res(), time))
 
-describe('Jobs run only when the device is online', () => {
-	it('When online runs, when ofline doesnt', async () => {
+describe('withBackoff', () => {
+	it('The subscriber will run after a delay based on the retry number, initial wait time, max wait time and the backoffMethod', async () => {
 		const stream = new Subject()
 		const spy = jest.fn()
 		

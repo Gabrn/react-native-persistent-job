@@ -3066,11 +3066,12 @@ react-devtools-core@2.3.1:
     shell-quote "^1.6.1"
     ws "^2.0.3"
 
-react-native-persistent-job@^1.0.0:
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/react-native-persistent-job/-/react-native-persistent-job-1.1.0.tgz#dde5b759fc92d38b5054bdfde216cc7046bd8844"
+react-native-persistent-job@^0.3.0:
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/react-native-persistent-job/-/react-native-persistent-job-0.3.0.tgz#d49d388dbdeb5223ac308447afec8e19fbff33bd"
   dependencies:
     rxjs "^5.4.2"
+    uuid "^3.1.0"
 
 react-native@0.46.4:
   version "0.46.4"
@@ -3854,7 +3855,7 @@ utils-merge@1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/utils-merge/-/utils-merge-1.0.0.tgz#0294fb922bb9375153541c4f7096231f287c8af8"
 
-uuid@^3.0.0:
+uuid@^3.0.0, uuid@^3.1.0:
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/uuid/-/uuid-3.1.0.tgz#3dd3d3e790abc24d7b0d3a034ffababe28ebbc04"
 

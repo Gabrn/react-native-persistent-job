@@ -1,12 +1,13 @@
 # react-native-persistent-job
 
-Run parametized functions (called `jobs`) that will re-run in cases of failure, connection loss, application crash or user forced shutdowns. 
+Run parametized asynchronous functions (called `jobs`) that will re-run in cases of failure, connection loss, application crash or user forced shutdowns. 
 
 ## Why?
 
 When you develop an application you usually focus on the 'happy flow', where everything runs smoothly, the user has perfect connection, he only leaves the app through the exit button and ofcourse only after he answered 'Yes I am sure' to the gentle pre-exit question that you designed for him, the app never crashes and your backend or any of the services you use never fail.   
 Well... it is not usually like that.   
-The purpose of this repository is to help you deal with that. 
+Things will fail and might leave your application in an unstable state.  
+This repository aims to help deal with that. 
 
 ## Installation
 

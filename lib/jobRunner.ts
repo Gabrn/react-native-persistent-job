@@ -25,14 +25,14 @@ export function JobRunner (
 		
 		if (!jobHandler) throw `Tried to invoke job of type ${job.jobType} which does not exist`;
 
-		const updateJob = async (state: any) => {
-			await jobPersister.updateJob({...job, state})
-			return {...job, state}
+		const updateState = async (state: any) => {
+			job.state = state
+			await jobPersister.updateJob(job)
 		}
 		
 		try {
 			jobHandler.isStateful 
-				? await jobHandler.handleFunction(job.state, updateJob)(...job.args) 
+				? await jobHandler.handleFunction(job.state, updateState)(...job.args) 
 				: await jobHandler.handleFunction(...job.args)
 			await jobPersister.clearPersistedJob(job)
 		} catch (e) {

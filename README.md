@@ -1,8 +1,12 @@
 # react-native-persistent-job
 
-Run parametized jobs that will persist in storage and re-run in case they did not finish.
-Jobs run on the 'job stream', which can be modified quite easily with rx, for controlling when and how the jobs will run.
-Failed jobs go into the 'retry stream', which can also be modified the same way.
+Run parametized functions (called `jobs`) that will re-run in cases of failure, connection loss, application crash or user forced shutdowns. 
+
+## Why?
+
+When you develop an application you usually focus on the 'happy flow', where everything runs smoothly, the user has perfect connection, he only leaves the app through the exit button and ofcourse only after he answered 'Yes I am sure' to the gentle pre-exit question that you designed for him, the app never crashes and your backend or any of the services you use never fail.   
+Well... it is not usually like that.   
+The purpose of this repository is to help you deal with that. 
 
 ## Installation
 
@@ -76,4 +80,36 @@ await persistentJob.initializeApp({
 })
 
 persistentJob.app('failing-jobs').runJob('failureOfAJob', 'I will fail while running')
+```
+
+## Stateful & stateless jobs
+Usually you will want to use stateless jobs.  
+Sometimes however, it is more convenient for a job to have a state, then whenever it runs after a failure it will remember the last state it was at.  
+To do that your function will have to have a prefix with 2 arguments `currentState` and `updateState`.  
+Here is an example with both a stateless and a stateful job:
+```
+	const statelessJob = async (name) => {
+		for (let i = 0; i < 10; i++) {
+			console.log('Hello name', i)
+		}
+	}
+
+	const statefulJob = (currentState, updateState) => async (name) => {
+		const start = currentState || 0
+		for (let i = start; i < 10; i++) {
+			console.log('Hello name', i)
+			await updateState(i)
+		}
+	}
+
+	await persistentJob.initializeApp({
+		storeName: 'stateless-stateful',
+		jobHandlers: [
+			{jobType: 'stateless', handleFunction: statelessJob},
+			{jobType: 'stateful', handleFunction: statefulJob}
+		]
+	})
+
+	persistentJob.app('stateless-stateful').runJob('stateless', 'john')
+	persistentJob.app('stateless-stateful').runJob('stateful', 'marry')
 ```

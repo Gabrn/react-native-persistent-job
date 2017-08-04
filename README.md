@@ -106,7 +106,7 @@ Here is an example with both a stateless and a stateful job:
 		storeName: 'stateless-stateful',
 		jobHandlers: [
 			{jobType: 'stateless', handleFunction: statelessJob},
-			{jobType: 'stateful', handleFunction: statefulJob}
+			{jobType: 'stateful', handleFunction: statefulJob, isStateful: true}
 		]
 	})
 

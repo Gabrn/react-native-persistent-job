@@ -12,7 +12,8 @@
   "author": "Gabi Nir <gabinir@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "rxjs": "^5.4.2"
+    "rxjs": "^5.4.2",
+    "uuid": "^3.1.0"
   },
   "devDependencies": {
     "@types/react-native": "^0.46.7",

@@ -2,6 +2,7 @@ export type Job = {
 	jobType: string,
 	args: any[],
 	timestamp: number,
+	id: string,
 	state?: any
 }
 
@@ -9,7 +10,7 @@ export type JobNumbered = Job & {
 	serialNumber: number
 }
 
-type UpdateState = (state: any) => Promise<void> 
+type UpdateState = (state: any) => Promise<JobNumbered> 
 type HandleFunctionStateful = (currentState: any, updateState: UpdateState) => (...args: any[]) => Promise<void>
 type HandleFuncitonStateless = (...args: any[]) => Promise<void>
 

@@ -30,6 +30,7 @@ export async function JobPersister (
 	const serialNumberKey = `${prefix}:${storeName}:currentSerialNumber`
   let currentSerialNumber = await asyncStorage.getItem(serialNumberKey) || 0
 	const stripPersistentFields = (job: JobNumbered) => ({
+		id: job.id,
 		args: job.args, 
 		jobType: job.jobType, 
 		serialNumber: job.serialNumber, 

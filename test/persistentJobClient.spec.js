@@ -1,6 +1,7 @@
 import {PersistentJobClient} from '../src/persistentJobClient'
 import asyncStorage from './asyncStorage'
 import {JobStorageStateManager} from './jobStorageState'
+import uuid from 'uuid'
 
 const EMPTY_STATE = {}
 const SPY_JOB = 'SPY_JOB'
@@ -19,6 +20,7 @@ const createCallMe = () => {
 }
 
 const Job = (jobType) => (...args) => ({
+	id: uuid.v4(),
 	jobType,
 	args,
 	timestamp: Date.now()

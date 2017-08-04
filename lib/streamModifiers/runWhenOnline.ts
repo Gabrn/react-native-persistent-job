@@ -17,7 +17,7 @@ const runWhenOnline = (netInfo: NetInfo) => (subject: Observable<JobNumbered>) =
 					Observable.of(job) : 
 					netInfoObservable.filter(connectionIsBack => connectionIsBack).first().map(_ => job)
 		)
-		.distinct()
+		.distinct(job => job.id)
 
 	return obs
 }

@@ -1,3 +1,4 @@
+import uuid from 'uuid'
 import runWhenOnline from '../../src/streamModifiers/runWhenOnline'
 import {Subject} from 'rxjs'
 
@@ -31,16 +32,20 @@ function NetInfo() {
 }
 
 const sleep = time => new Promise(res => setTimeout(() => res(), time))
-
+const FunctionId = f => ({
+	id: uuid.v4(),
+	handleFunction: f
+})
 describe('Jobs run only when the device is online', () => {
-	it('When online runs, when ofline doesnt', async () => {
+	it('When online runs, when offline doesnt', async () => {
 		const stream = new Subject()
 		const spy = jest.fn()
 		const netInfo = NetInfo()
-		const a = runWhenOnline(netInfo)(stream.asObservable()).subscribe(h => h())
+		const a = runWhenOnline(netInfo)(stream.asObservable()).subscribe(job => job.handleFunction())
 		
-		
-		stream.next(() => spy('first'))
+		stream.next(
+			FunctionId(() => spy('first'))
+		)
 		await sleep(1)
 
 		expect(spy.mock.calls.length).toBe(1)
@@ -48,7 +53,9 @@ describe('Jobs run only when the device is online', () => {
 
 		netInfo.isConnected.addEvent(false)
 
-		stream.next(() => spy('second'))
+		stream.next(
+			FunctionId(() => spy('second'))
+		)
 		await sleep(1)
 
 		expect(spy.mock.calls.length).toBe(1)

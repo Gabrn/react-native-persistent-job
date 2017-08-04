@@ -1,6 +1,7 @@
 import {Subject, Observable} from 'rxjs'
 import {Job, JobNumbered, JobHandler} from './jobTypes'
 import {JobPersisterType} from './jobPersistence'
+import * as uuid from 'uuid'
 
 export type JobRunnerType = {
 	runJob: (jobType: string, ...args: Array<any>) => void
@@ -16,7 +17,7 @@ export function JobRunner (
 	const job$ = modifyJobSubject ? modifyJobSubject(jobSubject.asObservable()) : jobSubject.asObservable()
 	const retrySubject = new Subject<JobNumbered>()
 	const retry$ = modifyRetrySubject ? modifyRetrySubject(retrySubject.asObservable()) : retrySubject.asObservable()
-	const addJob = (job: JobNumbered) => jobSubject.next(job)
+	const addJob = (job: JobNumbered) => jobSubject.next({...job, id: uuid.v4()})
 	const addRetry = (job: JobNumbered) => retrySubject.next(job)
 
 	async function jobObserver(job: JobNumbered) {
@@ -26,6 +27,7 @@ export function JobRunner (
 
 		const updateJob = async (state: any) => {
 			await jobPersister.updateJob({...job, state})
+			return {...job, state}
 		}
 		
 		try {
@@ -34,7 +36,7 @@ export function JobRunner (
 				: await jobHandler.handleFunction(...job.args)
 			await jobPersister.clearPersistedJob(job)
 		} catch (e) {
-			addRetry({...job})
+			addRetry(job)
 		}
 	}
 
@@ -47,7 +49,7 @@ export function JobRunner (
 			throw `Can not handle a job of type ${jobType} because there is no job handler for it`
 		}
 
-		const job: Job = {jobType, args, timestamp: Date.now()}
+		const job: Job = {jobType, args, timestamp: Date.now(), id: uuid.v4()}
 		const jobNumbered: JobNumbered = await jobPersister.persistNewJob(job)
 
 		addJob(jobNumbered)

@@ -1,14 +1,28 @@
 export type Job = {
 	jobType: string,
-	args: Array<any>,
-	timestamp: number
+	args: any[],
+	timestamp: number,
+	state?: any
 }
 
 export type JobNumbered = Job & {
 	serialNumber: number
 }
 
-export type JobHandler = {
+type UpdateState = (state: any) => Promise<void> 
+type HandleFunctionStateful = (currentState: any, updateState: UpdateState) => (...args: any[]) => Promise<void>
+type HandleFuncitonStateless = (...args: any[]) => Promise<void>
+
+type JobHandlerStateful = {
+	isStateful: true,
 	jobType: string,
-	handleFunction: (...args) => Promise<void>
+	handleFunction: HandleFunctionStateful
 }
+
+type JobHandlerStateless = {
+	isStateful?: false,
+	jobType: string,
+	handleFunction: HandleFuncitonStateless
+}
+
+export type JobHandler = JobHandlerStateful | JobHandlerStateless

@@ -20,10 +20,18 @@ export function JobRunner (
 	const addRetry = (job: JobNumbered) => retrySubject.next(job)
 
 	async function jobObserver(job: JobNumbered) {
-		const jobHandler = <JobHandler>jobHandlersMap.get(job.jobType)
+		const jobHandler = jobHandlersMap.get(job.jobType)
+		
+		if (!jobHandler) throw `Tried to invoke job of type ${job.jobType} which does not exist`;
+
+		const updateJob = async (state: any) => {
+			await jobPersister.updateJob({...job, state})
+		}
 		
 		try {
-			await jobHandler.handleFunction(...job.args)
+			jobHandler.isStateful 
+				? await jobHandler.handleFunction(job.state, updateJob)(...job.args) 
+				: await jobHandler.handleFunction(...job.args)
 			await jobPersister.clearPersistedJob(job)
 		} catch (e) {
 			addRetry({...job})
@@ -40,7 +48,7 @@ export function JobRunner (
 		}
 
 		const job: Job = {jobType, args, timestamp: Date.now()}
-		const jobNumbered: JobNumbered = await jobPersister.persistJob(job)
+		const jobNumbered: JobNumbered = await jobPersister.persistNewJob(job)
 
 		addJob(jobNumbered)
 	} 

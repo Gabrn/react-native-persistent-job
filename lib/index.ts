@@ -11,7 +11,6 @@ export const streamModifiers = _streamModifiers
 type Params = {
 	storeName?: string, 
 	jobHandlers: JobHandler[], 
-	asyncStorage: AsyncStorage,
 	modifyJobStream?: (jobSubject: Subject<JobNumbered>) => Subject<JobNumbered>,
 	modifyRetryStream?: (retrySubject: Subject<JobNumbered>) => Subject<JobNumbered> 
 }

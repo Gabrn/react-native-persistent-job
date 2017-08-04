@@ -15,7 +15,8 @@ export type AsyncStorage = {
 }
 
 export type JobPersisterType = {
-	persistJob: (job: Job) => Promise<JobNumbered>,
+	persistNewJob: (job: Job) => Promise<JobNumbered>,
+	updateJob: (job: JobNumbered) => Promise<void>,
 	clearPersistedJob: (job: JobNumbered) => Promise<void>,
 	fetchAllPersistedJobs: () => Promise<Array<PersistedJob>>,
 	clearDoneJobsFromStore: () => Promise<void>
@@ -32,12 +33,13 @@ export async function JobPersister (
 		args: job.args, 
 		jobType: job.jobType, 
 		serialNumber: job.serialNumber, 
-		timestamp: job.timestamp
+		timestamp: job.timestamp,
+		state: job.state
 	})
 	const getJobKey = (serialNumber: number) => `${prefix}:${storeName}:${serialNumber}`
 
 	// public 
-	async function persistJob(job: Job): Promise<JobNumbered> {
+	async function persistNewJob(job: Job): Promise<JobNumbered> {
 		currentSerialNumber++
 		const jobNumbered: JobNumbered = {...job, serialNumber: currentSerialNumber}
 
@@ -45,6 +47,11 @@ export async function JobPersister (
 		await asyncStorage.setItem(getJobKey(currentSerialNumber), {...stripPersistentFields(jobNumbered), isDone: false})
 
 		return jobNumbered
+	}
+
+	// public
+	async function updateJob(job: JobNumbered): Promise<void> {
+		await asyncStorage.setItem(getJobKey(currentSerialNumber), {...stripPersistentFields(job), isDone: false})
 	}
 
 	// public
@@ -84,7 +91,8 @@ export async function JobPersister (
 	}
 
 	return {
-		persistJob,
+		persistNewJob,
+		updateJob,
 		clearPersistedJob,
 		fetchAllPersistedJobs,
 		clearDoneJobsFromStore

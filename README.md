@@ -115,5 +115,5 @@ await persistentJob.initializeApp({
 })
 
 persistentJob.app('stateless-stateful').runJob('stateless', 'john')
-persistentJob.app('stateless-stateful').runJob('stateful', 'marry')
+persistentJob.app('stateless-stateful').runJob('stateful', 'mary')
 ```

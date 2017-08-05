@@ -1,5 +1,5 @@
 import {PersistentJobClient} from '../src/persistentJobClient'
-import asyncStorage from './asyncStorage'
+import AsyncStorage from './asyncStorage'
 import {JobStorageStateManager} from './jobStorageState'
 import uuid from 'uuid'
 
@@ -27,7 +27,7 @@ const Job = (jobType) => (...args) => ({
 })
 
 const sleep = time => new Promise(res => setTimeout(() => res(), time))
-
+const immediately = () => new Promise(res => setImmediate(() => res()))
 
 const assertFalse = () => setTimeout(() => expect(true).toBeFalsy, 10)
 
@@ -48,7 +48,7 @@ describe('Jobs run correctly', () => {
 		const client = await PersistentJobClient(
 			storeName, 
 			[{jobType: SPY_JOB, handleFunction: spy}],
-			asyncStorage(stateManager.state)
+			AsyncStorage(stateManager.state)
 		)
 
 		await sleep(1)
@@ -74,7 +74,7 @@ describe('Jobs run correctly', () => {
 		const client = await PersistentJobClient(
 			storeName, 
 			[{jobType: SPY_JOB, handleFunction: spy}],
-			asyncStorage(stateManager.state)
+			AsyncStorage(stateManager.state)
 		)
 
 		await sleep(1)
@@ -91,7 +91,7 @@ describe('Jobs run correctly', () => {
 		const client = await PersistentJobClient(
 			storeName, 
 			[{jobType: SPY_JOB, handleFunction: spy}],
-			asyncStorage(EMPTY_STATE)
+			AsyncStorage(EMPTY_STATE)
 		)
 
 		client.runJob(SPY_JOB, shouldBeCalled)
@@ -99,5 +99,47 @@ describe('Jobs run correctly', () => {
 		await sleep(1)
 		
 		expect(shouldBeCalled.isCalled()).toBeTruthy()
+	})
+
+	it('stateful jobs run correctly after failure', async () => {
+		const spy = jest.fn()
+		const runAndFail = (currentState, updateState) => async () => {
+			const curr = currentState || 0
+			spy(curr)
+			if (curr < 10) {
+				await updateState(curr + 1)
+		
+				throw 'I failed'
+			}
+		}
+
+		const asyncStorage = AsyncStorage(EMPTY_STATE)
+		const client = await PersistentJobClient(
+				storeName, 
+				[{jobType: 'runAndFail', handleFunction: runAndFail, isStateful: true}],
+				asyncStorage,
+				null,
+				subject => subject.filter(x => false)
+			)	
+			
+		client.runJob('runAndFail')
+
+		for (let i = 1; i < 10; i++) {
+
+			/* sleep 10 to wait until update state is finished before 
+			  restarting the PersistentJobClient because of a race condition that won't happen in real applications	*/
+			await sleep(10)
+			await PersistentJobClient(
+				storeName, 
+				[{jobType: 'runAndFail', handleFunction: runAndFail, isStateful: true}],
+				asyncStorage,
+				null,
+
+				// shut down the retry stream
+				subject => subject.filter(x => false)
+			)	
+
+			expect(spy.mock.calls[i][0]).toBe(i)
+		}
 	})
 })

@@ -32,7 +32,7 @@ export function JobRunner (
 		
 		try {
 			jobHandler.isStateful 
-				? await jobHandler.handleFunction(job.state, updateState)(...job.args) 
+				? await jobHandler.handleFunction(job.state, updateState)(...job.args)
 				: await jobHandler.handleFunction(...job.args)
 			await jobPersister.clearPersistedJob(job)
 		} catch (e) {

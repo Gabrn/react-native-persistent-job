@@ -91,28 +91,28 @@ Sometimes however, it is more convenient for a job to have a state, then wheneve
 To do that your function will have to have a prefix with 2 arguments `currentState` and `updateState`.  
 Here is an example with both a stateless and a stateful job:
 ```
-	const statelessJob = async (name) => {
-		for (let i = 0; i < 10; i++) {
-			console.log('Hello name', i)
-		}
+const statelessJob = async (name) => {
+	for (let i = 0; i < 10; i++) {
+		console.log('Hello name', i)
 	}
+}
 
-	const statefulJob = (currentState, updateState) => async (name) => {
-		const start = currentState || 0
-		for (let i = start; i < 10; i++) {
-			console.log('Hello name', i)
-			await updateState(i)
-		}
+const statefulJob = (currentState, updateState) => async (name) => {
+	const start = currentState || 0
+	for (let i = start; i < 10; i++) {
+		console.log('Hello name', i)
+		await updateState(i)
 	}
+}
 
-	await persistentJob.initializeApp({
-		storeName: 'stateless-stateful',
-		jobHandlers: [
-			{jobType: 'stateless', handleFunction: statelessJob},
-			{jobType: 'stateful', handleFunction: statefulJob, isStateful: true}
-		]
-	})
+await persistentJob.initializeApp({
+	storeName: 'stateless-stateful',
+	jobHandlers: [
+		{jobType: 'stateless', handleFunction: statelessJob},
+		{jobType: 'stateful', handleFunction: statefulJob, isStateful: true}
+	]
+})
 
-	persistentJob.app('stateless-stateful').runJob('stateless', 'john')
-	persistentJob.app('stateless-stateful').runJob('stateful', 'marry')
+persistentJob.app('stateless-stateful').runJob('stateless', 'john')
+persistentJob.app('stateless-stateful').runJob('stateful', 'marry')
 ```

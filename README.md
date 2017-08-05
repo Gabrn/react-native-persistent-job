@@ -1,6 +1,6 @@
 # react-native-persistent-job 
   
-[![npm version](https://badge.fury.io/js/react-native-persistent-job.svg)](https://badge.fury.io/js/react-native-persistent-job)  
+[![NPM version](https://img.shields.io/npm/v/react-native-persistent-job.svg)](https://www.npmjs.com/package/react-native-persistent-job)
   
 Run parametized asynchronous functions (called `jobs`) that will re-run in cases of failure, connection loss, application crash or user forced shutdowns. 
 

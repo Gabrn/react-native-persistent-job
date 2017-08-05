@@ -23,7 +23,7 @@ npm install --save react-native-persistent-job
 
 ## Usage
 
-There are 2 main apis. One for registering job (`initializeApp`) types and one for running them (`runJob`).
+There are 2 main apis. One for registering job types (`initializeApp`) and one for running them (`runJob`).
 
 * example:
 

@@ -27,7 +27,7 @@ There are 2 main apis. One for registering job types (`initializeApp`) and one f
 
 * example:
 
-```
+```js
 import persistentJob from 'react-native-persistent-job'
 
 ... 
@@ -47,7 +47,7 @@ The jobs run on a stream that can be modified using rx. There are some built-in 
 Will only run the jobs once the device is connected to the internet.
 
 * example
-```
+```js
 import persistentJob, {streamModifiers} from 'react-native-persistent-job'
 
 ...
@@ -66,13 +66,13 @@ persistentJob.app('online-jobs').runJob('sleepAndWarn', 'I will only run online 
 Will run failed jobs with delay based on a backoff method (right now either exponential or fibonacci)
 
 * Api:
-```
+```js
 streamModifiers.retryStream.withBackoff.{exponential / fibonacci}(initialWaitTime: number, maxWaitTime?: number)
 ```
 
 * Example:
 
-```
+```js
 import persistentJob, {streamModifiers} from 'react-native-persistent-job' 
 
 ...
@@ -91,7 +91,7 @@ Usually you will want to use stateless jobs.
 Sometimes however, it is more convenient for a job to have a state, then whenever it runs after a failure it will remember the last state it was at.  
 To do that your function will have to have a prefix with 2 arguments `currentState` and `updateState`.  
 Here is an example with both a stateless and a stateful job:
-```
+```js
 const statelessJob = async (name) => {
 	for (let i = 0; i < 10; i++) {
 		console.log('Hello name', i)

@@ -23,14 +23,37 @@ npm install --save react-native-persistent-job
 
 ## Usage
 
-There are 2 main apis. One for registering job types (`initializeApp`) and one for running them (`runJob`).
+There are 2 main apis. One for initialization, registering job types and applying modifiers (`initializeApp`) and one for running jobs (`runJob`).
 
-* example:
+### `initializeApp`
+`initializeApp` is used to set up options & run stored jobs.
+As soon as `initializeApp` is called the stored jobs that did not finish execution run.  
+To run any kind of persistent job you must call `initializeApp` first.  
+  
+<b>Arguments</b>:  
+* `storeName: string` - optional store name that identifies your instance when you call runJob
+* `jobHandlers: Array<{jobType: string, handleFunction: (...args: any) => Promise<void>}>` - an array of job type (the key that identifies the job) and an handle function to run when the job type is called
+* `modifyJobStream: Rx.Observable<JobNumbered> => RxObservable<JobNumbered>` - Modifies the stream that runs the jobs (more on that later in the readme)
+* `modifyRetryStream: Rx.Observable<JobNumbered> => RxObservable<JobNumbered>` - Modifies the stream that retries the jobs (more on that later in the readme)
+
+### `runJob`
+`runJob` is used to run the jobs, it accepts the job type as first argument and all the next arguments are the normal arguments that the function that is being ran accepts.  
+For example if I want to run a function `(a, b, c) => console.log(a, b, c)` that has a jobType `console` I will run it like this: `persistentJob.app().runJob('console', 'valueForA', 'valueForB', 'valueForC')`    
+  
+<b>Arguments</b>:   
+* `jobType: string` - the job type for the job you want to run that you registered beforehand in `initializeApp` with the `jobHandlers` param
+* `...args: any[]` - the args that the function accepts
+
+### example for `initializeApp` and `runJob`
 
 ```js
 import persistentJob from 'react-native-persistent-job'
 
-... 
+const sleep = time => new Promise(res => setTimeout(() => res(), time))
+const sleepAndWarn = async (msg, time) => {
+  await sleep(time)
+  console.warn(msg)
+}
 
 await persistentJob.initializeApp({
 	jobHandlers: [{jobType: 'sleepAndWarn', handleFunction: sleepAndWarn}]

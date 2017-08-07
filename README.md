@@ -49,18 +49,14 @@ For example if I want to run a function `(a, b, c) => console.log(a, b, c)` that
 ```js
 import persistentJob from 'react-native-persistent-job'
 
-const sleep = time => new Promise(res => setTimeout(() => res(), time))
-const sleepAndWarn = async (msg, time) => {
-  await sleep(time)
-  console.warn(msg)
-}
+const logIt = (a, b, c) => console.log(a, b, c)
 
 await persistentJob.initializeApp({
-	jobHandlers: [{jobType: 'sleepAndWarn', handleFunction: sleepAndWarn}]
+	jobHandlers: [{jobType: 'logIt', handleFunction: logIt}]
 })
 
-persistentJob.app().runJob('sleepAndWarn', 'hello after one second', 1000)
-persistentJob.app().runJob('sleepAndWarn', 'goodBye after ten seconds', 10000)
+persistentJob.app().runJob('logIt', 'valueForA', ''valueForB', ''valueForC')
+persistentJob.app().runJob('logIt', 'AnotherValueForA', ''AnotherValueForB', ''AnotherValueForC')
 ```
 
 ## Job & Retry streams

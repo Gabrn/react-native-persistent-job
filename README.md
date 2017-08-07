@@ -69,7 +69,7 @@ Will only run the jobs once the device is connected to the internet.
 ```js
 import persistentJob, {streamModifiers} from 'react-native-persistent-job'
 
-...
+const logIt = (a, b, c) => console.log(a, b, c)
 
 await persistentJob.initializeApp({
 	storeName: 'online-jobs',

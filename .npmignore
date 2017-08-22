@@ -1,6 +1,5 @@
 node_modules
 .gitignore
-lib
 tsconfig.json
 test
 examples

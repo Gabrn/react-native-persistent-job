@@ -6,8 +6,7 @@
   "main": "./src/index",
   "scripts": {
     "test": "npm run build && jest",
-    "build": "rm -rf ./src && tsc",
-    "prepublish": "npm run build"
+    "build": "rm -rf ./src && tsc"
   },
   "author": "Gabi Nir <gabinir@gmail.com>",
   "license": "MIT",
@@ -21,6 +20,8 @@
     "babel-preset-es2017": "^6.24.1",
     "babel-preset-react": "^6.24.1",
     "babel-preset-stage-2": "^6.24.1",
+    "typescript": "^2.4.2",
+    "tslib": "^1.7.1",
     "jest": "^20.0.4"
   },
   "peerDependencies": {

@@ -6,7 +6,8 @@
   "main": "./src/index",
   "scripts": {
     "test": "npm run build && jest",
-    "build": "rm -rf ./src && tsc"
+    "build": "rm -rf ./src && tsc",
+    "prepublish": "npm run build"
   },
   "author": "Gabi Nir <gabinir@gmail.com>",
   "license": "MIT",

@@ -9,7 +9,7 @@
 	"dependencies": {
 		"react": "16.0.0-alpha.12",
 		"react-native": "0.46.4",
-		"react-native-persistent-job": "^0.3.0",
+		"react-native-persistent-job": "^2.3.2",
 		"rxjs": "^5.4.2"
 	},
 	"devDependencies": {

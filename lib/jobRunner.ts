@@ -4,12 +4,13 @@ import {JobPersisterType} from './jobPersistence'
 import * as uuid from 'uuid'
 
 export type JobRunnerType = {
-	runJob: (jobType: string, ...args: Array<any>) => void
+	createJob: (jobType: string) => (...args: Array<any>) => Promise<void>
 }
 
 export function JobRunner (
 	jobHandlersMap: Map<string, JobHandler>, 
-	jobPersister: JobPersisterType, initialJobs?: Array<JobNumbered>, 
+	jobPersister: JobPersisterType, 
+	initialJobs?: Array<JobNumbered>, 
 	modifyJobSubject?: (jobSubject: Observable<JobNumbered>) => Observable<JobNumbered>,
 	modifyRetrySubject?: (retrySubject: Observable<JobNumbered>) => Observable<JobNumbered> 
 ) {
@@ -44,7 +45,7 @@ export function JobRunner (
 	retry$.subscribe(addJob)
 
 	// public
-	async function runJob(jobType: string, ...args: Array<any>) {
+	const createJob = (jobType: string) => async (...args: Array<any>) => {
 		if (!jobHandlersMap.has(jobType)) {
 			throw `Can not handle a job of type ${jobType} because there is no job handler for it`
 		}
@@ -56,6 +57,6 @@ export function JobRunner (
 	} 
 
 	return {
-		runJob
+		createJob
 	}
 }

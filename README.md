@@ -23,40 +23,41 @@ npm install --save react-native-persistent-job
 
 ## Usage
 
-There are 2 main apis. One for initialization, registering job types and applying modifiers (`initializeApp`) and one for running jobs (`runJob`).
+There are 2 main apis. One for initialization, registering job types and applying modifiers (`initializeStore`) and one for running jobs (`createJob`).
 
-### `initializeApp`
-`initializeApp` is used to set up options & run stored jobs.
-As soon as `initializeApp` is called the stored jobs that did not finish execution run.  
-To run any kind of persistent job you must call `initializeApp` first.  
+### `initializeStore`
+`initializeStore` is used to set up options & run stored jobs.
+As soon as `initializeStore` is called the stored jobs that did not finish execution run.  
+To run any kind of persistent job you must call `initializeStore` first.  
   
 <b>Arguments</b>:  
-* `storeName: string` - optional store name that identifies your instance when you call runJob
+* `storeName: string` - optional store name that identifies your instance when you call createJob
 * `jobHandlers: Array<{jobType: string, handleFunction: (...args: any) => Promise<void>}>` - an array of job type (the key that identifies the job) and an handle function to run when the job type is called
 * `modifyJobStream: Rx.Observable<JobNumbered> => RxObservable<JobNumbered>` - Modifies the stream that runs the jobs (more on that later in the readme)
 * `modifyRetryStream: Rx.Observable<JobNumbered> => RxObservable<JobNumbered>` - Modifies the stream that retries the jobs (more on that later in the readme)
 
-### `runJob`
-`runJob` is used to run the jobs, it accepts the job type as first argument and all the next arguments are the normal arguments that the function that is being ran accepts.  
-For example if I want to run a function `(a, b, c) => console.log(a, b, c)` that has a jobType `console` I will run it like this: `persistentJob.app().runJob('console', 'valueForA', 'valueForB', 'valueForC')`    
+### `createJob`
+`createJob` is used to run the jobs, it accepts the job type as an argument and returns the function of that job type wrapped with persistent-job functionality.
+For example if I want to run a function `(a, b, c) => console.log(a, b, c)` that has a jobType `console` I will run it like this: `persistentJob.store().createJob('console')('valueForA', 'valueForB', 'valueForC')`    
   
 <b>Arguments</b>:   
-* `jobType: string` - the job type for the job you want to run that you registered beforehand in `initializeApp` with the `jobHandlers` param
+* `jobType: string` - the job type for the job you want to run that you registered beforehand in `initializeStore` with the `jobHandlers` param
 * `...args: any[]` - the args that the function accepts
 
-### example for `initializeApp` and `runJob`
+### example for `initializeStore` and `createJob`
 
 ```js
 import persistentJob from 'react-native-persistent-job'
 
 const logIt = (a, b, c) => console.log(a, b, c)
 
-await persistentJob.initializeApp({
+await persistentJob.initializeStore({
 	jobHandlers: [{jobType: 'logIt', handleFunction: logIt}]
 })
 
-persistentJob.app().runJob('logIt', 'valueForA', ''valueForB', ''valueForC')
-persistentJob.app().runJob('logIt', 'AnotherValueForA', ''AnotherValueForB', ''AnotherValueForC')
+const persistentLogIt = persistentJob.store().createJob('logIt')
+persistentLogIt('valueForA', 'valueForB', 'valueForC')
+persistentLogIt('AnotherValueForA', 'AnotherValueForB', 'AnotherValueForC')
 ```
 
 ## Job & Retry streams
@@ -71,13 +72,14 @@ import persistentJob, {streamModifiers} from 'react-native-persistent-job'
 
 const logIt = (a, b, c) => console.log(a, b, c)
 
-await persistentJob.initializeApp({
+await persistentJob.initializeStore({
 	storeName: 'online-jobs',
 	jobHandlers: [{jobType: 'logIt', handleFunction: logIt}]
 	modifyJobStream: streamModifiers.runWhenOnline
 })
 
-persistentJob.app('online-jobs').runJob('logIt', 'valueForA', ''valueForB', ''valueForC')
+const persistentLogIt = persistentJob.store('online-jobs').createJob('logIt')
+persistentLogIt('valueForA', 'valueForB', 'valueForC')
 ```
 
 ### `withBackoff`
@@ -98,13 +100,14 @@ const failureOfAJob = (msg) => {
 	throw 'I failed'
 }
 
-await persistentJob.initializeApp({
+const failingJobsStore = await persistentJob.initializeStore({
 	storeName: 'failing-jobs',
 	jobHandlers: [{jobType: 'failureOfAJob', handleFunction: failureOfAJob}]
 	modifyRetryStream: streamModifiers.retryStream.withBackoff.exponential(10, 50)
 })
 
-persistentJob.app('failing-jobs').runJob('failureOfAJob', 'I will fail while running')
+const persistentFailureOfAJob = failingJobsStore.createJob('failureOfAJob') 
+persistentFailureOfAJob('I will fail while running')
 ```
 
 ## Stateful & stateless jobs
@@ -127,7 +130,7 @@ const statefulJob = (currentState, updateState) => async (name) => {
 	}
 }
 
-await persistentJob.initializeApp({
+await persistentJob.initializeStore({
 	storeName: 'stateless-stateful',
 	jobHandlers: [
 		{jobType: 'stateless', handleFunction: statelessJob},
@@ -135,6 +138,8 @@ await persistentJob.initializeApp({
 	]
 })
 
-persistentJob.app('stateless-stateful').runJob('stateless', 'john')
-persistentJob.app('stateless-stateful').runJob('stateful', 'mary')
+const persistentStatelessJob = persistentJob.store('stateless-stateful').createJob('stateless')
+const persistentStatefulJob = persistentJob.store('stateless-stateful').createJob('stateful')
+persistentStatelessJob('john')
+persistentStatefulJob('mary')
 ```

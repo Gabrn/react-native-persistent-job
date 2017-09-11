@@ -18,7 +18,7 @@ type Params = {
 const storesMap = new Map<string, PersistentJobClientType>()
 
 export default {
-	async initializeApp({storeName, jobHandlers, modifyJobStream, modifyRetryStream}: Params): Promise<PersistentJobClientType> {
+	async initializeStore({storeName, jobHandlers, modifyJobStream, modifyRetryStream}: Params): Promise<PersistentJobClientType> {
 		const storeNameWithDefault = storeName || 'default'
 		const client =  await PersistentJobClient(
 			storeNameWithDefault, 
@@ -32,11 +32,11 @@ export default {
 
 		return client
 	},
-	app(storeName?: string): PersistentJobClientType {
+	store(storeName?: string): PersistentJobClientType {
 		const storeNameWithDefault = storeName || 'default'
 		
 		if (!storesMap.has(storeNameWithDefault)) {
-			throw `Store ${storeNameWithDefault} is not initialized. call initializeApp({storeName?: string, jobHandlers: JobHandler[], asyncStorage: AsyncStorageStatic})`
+			throw `Store ${storeNameWithDefault} is not initialized. call initializeStore({storeName?: string, jobHandlers: JobHandler[], asyncStorage: AsyncStorageStatic})`
 		} 
 
 		return <PersistentJobClientType>storesMap.get(storeNameWithDefault)

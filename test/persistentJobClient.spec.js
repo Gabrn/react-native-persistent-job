@@ -94,7 +94,7 @@ describe('Jobs run correctly', () => {
 			AsyncStorage(EMPTY_STATE)
 		)
 
-		client.runJob(SPY_JOB, shouldBeCalled)
+		client.createJob(SPY_JOB)(shouldBeCalled)
 
 		await sleep(1)
 		
@@ -122,7 +122,7 @@ describe('Jobs run correctly', () => {
 				subject => subject.filter(x => false)
 			)	
 			
-		client.runJob('runAndFail')
+		client.createJob('runAndFail')()
 
 		for (let i = 1; i < 10; i++) {
 

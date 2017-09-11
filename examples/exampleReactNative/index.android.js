@@ -22,24 +22,23 @@ const sleepAndWarn = async (msg, time) => {
 
 export default class exampleReactNative extends Component {
   async componentDidMount() {
-    await persistentJob.initializeApp({
+    await persistentJob.initializeStore({
       jobHandlers: [{jobType: 'sleepAndWarn', handleFunction: sleepAndWarn}],
     })
 
-    await persistentJob.initializeApp({
+    await persistentJob.initializeStore({
       storeName: 'online-jobs',
       jobHandlers: [{jobType: 'sleepAndWarn', handleFunction: sleepAndWarn}],
       modifyJobStream: streamModifiers.runWhenOnline
     })
 
-    persistentJob.app().runJob('sleepAndWarn', 'hello after one second', 1000)
-    persistentJob.app().runJob('sleepAndWarn', 'goodBye after ten seconds', 10000)
+    persistentJob.store().createJob('sleepAndWarn')('hello after one second', 1000)
+    persistentJob.store().createJob('sleepAndWarn')('goodBye after ten seconds', 10000)
     await sleep(1)
-    persistentJob.app('online-jobs').runJob('sleepAndWarn', 'I will only run online after one second', 1000)
-    persistentJob.app('online-jobs').runJob('sleepAndWarn', 'I will only run online after two seconds', 2000)
+    persistentJob.store('online-jobs').createJob('sleepAndWarn')('I will only run online after one second', 1000)
+    persistentJob.store('online-jobs').createJob('sleepAndWarn')('I will only run online after two seconds', 2000)
     await sleep(20000)
-    persistentJob.app('online-jobs').runJob(
-      'sleepAndWarn', 
+    persistentJob.store('online-jobs').createJob('sleepAndWarn')(
       `I will be ran after 20 seconds so you can go offline and then run only when online after one second`, 
        1000
       )

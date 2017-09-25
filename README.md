@@ -33,8 +33,9 @@ To run any kind of persistent job you must call `initializeStore` first.
 <b>Arguments</b>:  
 * `storeName: string` - optional store name that identifies your instance when you call createJob
 * `jobHandlers: Array<{jobType: string, handleFunction: (...args: any) => Promise<void>}>` - an array of job type (the key that identifies the job) and an handle function to run when the job type is called
-* `modifyJobStream: Rx.Observable<JobNumbered> => RxObservable<JobNumbered>` - Modifies the stream that runs the jobs (more on that later in the readme)
-* `modifyRetryStream: Rx.Observable<JobNumbered> => RxObservable<JobNumbered>` - Modifies the stream that retries the jobs (more on that later in the readme)
+* `modifyJobStream?: Rx.Observable<JobNumbered> => RxObservable<JobNumbered>` - Modifies the stream that runs the jobs (more on that later in the readme)
+* `modifyRetryStream?: Rx.Observable<JobNumbered> => RxObservable<JobNumbered>` - Modifies the stream that retries the jobs (more on that later in the readme)
+* `concurrencyLimit?: number` - Limit the number of jobs that can run concurrently, other jobs will have to wait until the running jobs finish before they can run.
 
 ### `createJob`
 `createJob` is used to run the jobs, it accepts the job type as an argument and returns the function of that job type wrapped with persistent-job functionality.

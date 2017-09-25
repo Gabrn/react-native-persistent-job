@@ -31,7 +31,7 @@ As soon as `initializeStore` is called the stored jobs that did not finish execu
 To run any kind of persistent job you must call `initializeStore` first.  
   
 <b>Arguments</b>:  
-* `storeName: string` - optional store name that identifies your instance when you call createJob
+* `storeName?: string` - optional store name that identifies your instance when you call createJob
 * `jobHandlers: Array<{jobType: string, handleFunction: (...args: any) => Promise<void>}>` - an array of job type (the key that identifies the job) and an handle function to run when the job type is called
 * `modifyJobStream?: Rx.Observable<JobNumbered> => RxObservable<JobNumbered>` - Modifies the stream that runs the jobs (more on that later in the readme)
 * `modifyRetryStream?: Rx.Observable<JobNumbered> => RxObservable<JobNumbered>` - Modifies the stream that retries the jobs (more on that later in the readme)

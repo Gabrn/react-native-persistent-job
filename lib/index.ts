@@ -12,20 +12,22 @@ type Params = {
 	storeName?: string, 
 	jobHandlers: JobHandler[], 
 	modifyJobStream?: (jobSubject: Subject<JobNumbered>) => Subject<JobNumbered>,
-	modifyRetryStream?: (retrySubject: Subject<JobNumbered>) => Subject<JobNumbered> 
+	modifyRetryStream?: (retrySubject: Subject<JobNumbered>) => Subject<JobNumbered>,
+	concurrencyLimit?: number,
 }
 
 const storesMap = new Map<string, PersistentJobClientType>()
 
 export default {
-	async initializeStore({storeName, jobHandlers, modifyJobStream, modifyRetryStream}: Params): Promise<PersistentJobClientType> {
+	async initializeStore({storeName, jobHandlers, modifyJobStream, modifyRetryStream, concurrencyLimit}: Params): Promise<PersistentJobClientType> {
 		const storeNameWithDefault = storeName || 'default'
 		const client =  await PersistentJobClient(
 			storeNameWithDefault, 
 			jobHandlers, 
 			transformAsyncStorage(AsyncStorage),
 			modifyJobStream, 
-			modifyRetryStream
+			modifyRetryStream,
+			concurrencyLimit
 		)
 
 		storesMap.set(storeNameWithDefault, client)

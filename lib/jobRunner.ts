@@ -12,7 +12,8 @@ export function JobRunner (
 	jobPersister: JobPersisterType, 
 	initialJobs?: Array<JobNumbered>, 
 	modifyJobSubject?: (jobSubject: Observable<JobNumbered>) => Observable<JobNumbered>,
-	modifyRetrySubject?: (retrySubject: Observable<JobNumbered>) => Observable<JobNumbered> 
+	modifyRetrySubject?: (retrySubject: Observable<JobNumbered>) => Observable<JobNumbered>,
+	limitConccurency?: number,
 ) {
 	const jobSubject = new Subject<JobNumbered>()
 	const job$ = modifyJobSubject ? modifyJobSubject(jobSubject.asObservable()) : jobSubject.asObservable()
@@ -30,18 +31,25 @@ export function JobRunner (
 			job.state = state
 			await jobPersister.updateJob(job)
 		}
-		
+
 		try {
 			jobHandler.isStateful 
 				? await jobHandler.handleFunction(job.state, updateState)(...job.args)
 				: await jobHandler.handleFunction(...job.args)
 			await jobPersister.clearPersistedJob(job)
+
 		} catch (e) {
 			addRetry(job)
 		}
 	}
 
-	Observable.concat(Observable.from(initialJobs || []), job$).subscribe(jobObserver)
+	Observable
+		.concat(Observable.from(initialJobs || []), job$)
+		.flatMap(
+			job => Observable.fromPromise(jobObserver(job)),
+			limitConccurency
+		)
+		.subscribe()
 	retry$.subscribe(addJob)
 
 	// public

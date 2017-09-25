@@ -142,4 +142,91 @@ describe('Jobs run correctly', () => {
 			expect(spy.mock.calls[i][0]).toBe(i)
 		}
 	})
+
+	it('When running several jobs without concurrency limit jobs run concurrently', async () => {
+		const spy = jest.fn()
+		const asyncStorage = AsyncStorage(EMPTY_STATE)
+		const runAndSleep = async () => {
+			spy(1)
+			await sleep(20)
+		}
+
+		const client = await PersistentJobClient(
+			'When running several jobs without concurrency limit jobs run concurrently',
+			[{jobType: 'runAndSleep', handleFunction: runAndSleep}],
+			asyncStorage,
+		)
+
+		const CALL_NUMBER = 100
+		const persistentRunAndSleep = client.createJob('runAndSleep')
+		for (let i = 0; i < CALL_NUMBER; i++) {
+			persistentRunAndSleep()
+		}
+
+		// Let all jobs run concurrently
+		await sleep(100)
+
+		expect(spy.mock.calls.length).toBe(CALL_NUMBER)
+	})
+
+	it('When running several jobs and concurrency limit is set to 1, run one job at a time', async () => {
+		const spy = jest.fn()
+		const asyncStorage = AsyncStorage(EMPTY_STATE)
+		const runAndSleep = async () => {
+			spy(1)
+			await sleep(20)
+		}
+
+		const client = await PersistentJobClient(
+			'When running several jobs and concurrency limit is on jobs run do not run concurrently',
+			[{jobType: 'runAndSleep', handleFunction: runAndSleep}],
+			asyncStorage,
+			null,
+			null,
+			1
+		)
+
+		const CALL_NUMBER = 100
+		const WAIT_TIME = 100
+		const persistentRunAndSleep = client.createJob('runAndSleep')
+		for (let i = 0; i < CALL_NUMBER; i++) {
+			persistentRunAndSleep()
+		}
+
+		// Let some jobs run
+		await sleep(WAIT_TIME)
+
+		expect(spy.mock.calls.length).toBeLessThan(WAIT_TIME / 10)
+	})
+
+	it('When running several jobs and concurrency limit is set to 2, run two jobs at a time', async () => {
+		const spy = jest.fn()
+		const asyncStorage = AsyncStorage(EMPTY_STATE)
+		const runAndSleep = async () => {
+			spy(1)
+			await sleep(20)
+		}
+
+		const client = await PersistentJobClient(
+			'When running several jobs and concurrency limit is set to 2, run two jobs at a time',
+			[{jobType: 'runAndSleep', handleFunction: runAndSleep}],
+			asyncStorage,
+			null,
+			null,
+			2
+		)
+
+		const CALL_NUMBER = 100
+		const WAIT_TIME = 100
+		const persistentRunAndSleep = client.createJob('runAndSleep')
+		for (let i = 0; i < CALL_NUMBER; i++) {
+			persistentRunAndSleep()
+		}
+
+		// Let some jobs run
+		await sleep(WAIT_TIME)
+
+		expect(spy.mock.calls.length).toBeGreaterThanOrEqual(WAIT_TIME / 10)
+		expect(spy.mock.calls.length).toBeLessThan(WAIT_TIME * 2 / 10)
+	})
 })

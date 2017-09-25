@@ -5,7 +5,7 @@
   "description": "",
   "main": "./src/index",
   "scripts": {
-    "test": "npm run build && jest",
+    "test": "npm run build && jest ./test",
     "build": "rm -rf ./src && tsc",
     "prepublish": "npm run build"
   },

@@ -234,7 +234,7 @@ describe("job subscriptions work correctly", () => {
 		const spy = jest.fn()
 
 		const client = await PersistentJobClient(
-			storeName, 
+			"When a subscriber subscribes to a job it sees when the job starts and when it ends", 
 			[{jobType: 'sleep', handleFunction: () => sleep(10)}],
 			AsyncStorage(EMPTY_STATE)
 		)
@@ -259,7 +259,7 @@ describe("job subscriptions work correctly", () => {
 		}
 
 		const client = await PersistentJobClient(
-			storeName, 
+			"Stateful jobs should show intermediate state to subscribers", 
 			[{jobType: 'something', handleFunction: statefulFunction, isStateful: true}],
 			AsyncStorage(EMPTY_STATE)
 		)
@@ -278,12 +278,12 @@ describe("job subscriptions work correctly", () => {
 		expect(spy.mock.calls[11][0].jobState).toBe('JOB_DONE')
 	})
 
-	it("When running several subscribers, each subscriber should be notified",async () => {
+	it("When running several subscribers, each subscriber should be notified", async () => {
 		const spy = jest.fn()
 		const spy2 = jest.fn()
 		const spy3 = jest.fn()
 		const client = await PersistentJobClient(
-			storeName, 
+			"When running several subscribers, each subscriber should be notified", 
 			[{jobType: 'sleep', handleFunction: () => sleep(10)}],
 			AsyncStorage(EMPTY_STATE)
 		)
@@ -294,7 +294,7 @@ describe("job subscriptions work correctly", () => {
 		client.subscribe(SOME_TOPIC, (state) => spy2(state))
 		client.subscribe(SOME_TOPIC, (state) => spy3(state))
 		
-		await sleep(20)
+		await sleep(30)
 		expect(spy.mock.calls[0][0].jobState).toBe('JOB_STARTED')
 		expect(spy.mock.calls[1][0].jobState).toBe('JOB_DONE')
 		expect(spy2.mock.calls[0][0].jobState).toBe('JOB_STARTED')

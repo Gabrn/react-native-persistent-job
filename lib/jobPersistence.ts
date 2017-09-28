@@ -19,14 +19,15 @@ export type JobPersisterType = {
 	updateJob: (job: JobNumbered) => Promise<void>,
 	clearPersistedJob: (job: JobNumbered) => Promise<void>,
 	fetchAllPersistedJobs: () => Promise<Array<PersistedJob>>,
-	clearDoneJobsFromStore: () => Promise<void>
+	clearDoneJobsFromStore: () => Promise<void>,
+	getCachedJob: (key: string) => JobNumbered,
 }
 
 export async function JobPersister (
 	storeName: string,
 	asyncStorage: AsyncStorage
 ): Promise<JobPersisterType> {
-
+	const jobCache: {[topic: string]: JobNumbered} = {}
 	const serialNumberKey = `${prefix}:${storeName}:currentSerialNumber`
   let currentSerialNumber = await asyncStorage.getItem(serialNumberKey) || 0
 	const stripPersistentFields = (job: JobNumbered) => ({
@@ -46,6 +47,7 @@ export async function JobPersister (
 
 		await asyncStorage.setItem(serialNumberKey, currentSerialNumber)
 		await asyncStorage.setItem(getJobKey(currentSerialNumber), {...stripPersistentFields(jobNumbered), isDone: false})
+		if (job.topic) jobCache[job.topic] = jobNumbered
 
 		return jobNumbered
 	}
@@ -53,6 +55,7 @@ export async function JobPersister (
 	// public
 	async function updateJob(job: JobNumbered): Promise<void> {
 		await asyncStorage.setItem(getJobKey(currentSerialNumber), {...stripPersistentFields(job), isDone: false})
+		if (job.topic) jobCache[job.topic] = {...stripPersistentFields(job)}
 	}
 
 	// public
@@ -76,6 +79,11 @@ export async function JobPersister (
 		const allJobs = await fetchAllPersistedJobs()
 		const jobsInProgress: Array<PersistedJob> = allJobs.filter(job => job && !job.isDone).map((job, i) => ({...job, serialNumber: i+1}))
 
+		jobsInProgress.forEach(job => {
+			const {isDone, ...jobNumbered} = job
+			if (job.topic) jobCache[job.topic] = jobNumbered
+		})
+		
 		const itemsToRemove: Array<string> = []
 		for (let i = jobsInProgress.length + 1; i <= currentSerialNumber; i++) {
 			itemsToRemove.push(getJobKey(i))
@@ -91,11 +99,17 @@ export async function JobPersister (
 		])
 	}
 
+	//public
+	function getCachedJob(topic: string): JobNumbered {
+		return jobCache[topic]
+	} 
+
 	return {
 		persistNewJob,
 		updateJob,
 		clearPersistedJob,
 		fetchAllPersistedJobs,
 		clearDoneJobsFromStore,
+		getCachedJob,
 	}
 }

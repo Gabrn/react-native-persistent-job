@@ -1,28 +1,28 @@
-export type JobSubscription = (jobState: string) => void
+export type JobSubscription = (jobState: any) => void
 export type RemoveSubscription = () => void
 
 export function JobSubscriptions() {
-	const subscriptions: {[key: string]: Set<JobSubscription>} = {}
+	const subscriptions: {[topic: string]: Set<JobSubscription>} = {}
 
 	// public
-	function addSubscription(jobId: string, subscription: JobSubscription): RemoveSubscription {
-		if (subscriptions[jobId]) {
-			subscriptions[jobId].add(subscription)
+	function addSubscription(topic: string, subscription: JobSubscription): RemoveSubscription {
+		if (subscriptions[topic]) {
+			subscriptions[topic].add(subscription)
 		} else {
-			subscriptions[jobId] = new Set([subscription])
+			subscriptions[topic] = new Set([subscription])
 		}
 
-		return () => subscriptions[jobId].delete(subscription)
+		return () => subscriptions[topic].delete(subscription)
 	}
 
 	// public
-	function runSubscriptions(jobId: string, jobState: any): void {
-		subscriptions[jobId].forEach(subscription => subscription(jobState))
+	function runSubscriptions(topic: string, jobState: any): void {
+		subscriptions[topic].forEach(subscription => subscription(jobState))
 	}
 
 	// public
-	function removeSubscriptions(jobId: string): void {
-		delete subscriptions[jobId]
+	function removeSubscriptions(topic: string): void {
+		delete subscriptions[topic]
 	}
 
 	return {

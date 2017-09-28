@@ -3,11 +3,12 @@ export type Job = {
 	args: any[],
 	timestamp: number,
 	id: string,
-	state?: any
+	state?: any,
+	topic?: string,
 }
 
 export type JobNumbered = Job & {
-	serialNumber: number
+	serialNumber: number,
 }
 
 type UpdateState = (state: any) => Promise<void> 

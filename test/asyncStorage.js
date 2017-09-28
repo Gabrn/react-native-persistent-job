@@ -25,11 +25,17 @@ export default obj => {
 		keyValuePairs.forEach(pair => setItem(pair.key, pair.value))
 	}
 
+	//public 
+	function getCachedItem(key) {
+		return obj[key]
+	}
+
 	return {
 		getItem,
 		setItem,
 		removeItem,
 		multiRemove,
-		multiSet
+		multiSet,
+		getCachedItem,
 	}
 }

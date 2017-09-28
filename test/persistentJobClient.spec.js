@@ -230,3 +230,23 @@ describe('Jobs run correctly', () => {
 		expect(spy.mock.calls.length).toBeLessThan(WAIT_TIME * 2 / 10)
 	})
 })
+
+describe("job subscriptions work correctly", () => {
+	it ("When a subscriber subscribes to a job it sees when the job starts and when it ends", async () => {
+		const spy = jest.fn()
+
+		const client = await PersistentJobClient(
+			"When a subscriber subscribes to a job it sees when the job starts and when it ends", 
+			[{jobType: 'sleep', handleFunction: () => sleep(10)}],
+			AsyncStorage(EMPTY_STATE)
+		)
+
+		const SOME_TOPIC = 'SOME_TOPIC'
+		await client.createJob('sleep', SOME_TOPIC)()
+		client.subscribe(SOME_TOPIC, (state) => spy(state))
+
+		await sleep(20)
+		expect(spy.mock.calls[0][0].jobState).toBe('JOB_STARTED')
+		expect(spy.mock.calls[1][0].jobState).toBe('JOB_DONE')
+	})
+})

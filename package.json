@@ -1,6 +1,6 @@
 {
   "name": "react-native-persistent-job",
-  "version": "2.4.0",
+  "version": "2.5.0",
   "repository": "https://github.com/GabiNir/react-native-persistent-job",
   "description": "",
   "main": "./src/index",

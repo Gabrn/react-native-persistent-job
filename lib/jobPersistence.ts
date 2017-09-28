@@ -45,9 +45,9 @@ export async function JobPersister (
 		currentSerialNumber++
 		const jobNumbered: JobNumbered = {...job, serialNumber: currentSerialNumber}
 
+		if (job.topic) jobCache[job.topic] = jobNumbered
 		await asyncStorage.setItem(serialNumberKey, currentSerialNumber)
 		await asyncStorage.setItem(getJobKey(currentSerialNumber), {...stripPersistentFields(jobNumbered), isDone: false})
-		if (job.topic) jobCache[job.topic] = jobNumbered
 
 		return jobNumbered
 	}

@@ -30,11 +30,9 @@ const sleep = time => new Promise(res => setTimeout(() => res(), time))
 const immediately = () => new Promise(res => setImmediate(() => res()))
 
 const assertFalse = () => setTimeout(() => expect(true).toBeFalsy, 10)
+const storeName = 'store'
 
 describe('Jobs run correctly', () => {
-
-	const storeName = 'store'
-
 	it ('On load several done jobs should be deleted', async () => {
 		const stateManager = JobStorageStateManager(storeName)
 		const SpyJob = Job(SPY_JOB)
@@ -232,11 +230,11 @@ describe('Jobs run correctly', () => {
 })
 
 describe("job subscriptions work correctly", () => {
-	it ("When a subscriber subscribes to a job it sees when the job starts and when it ends", async () => {
+	it("When a subscriber subscribes to a job it sees when the job starts and when it ends", async () => {
 		const spy = jest.fn()
 
 		const client = await PersistentJobClient(
-			"When a subscriber subscribes to a job it sees when the job starts and when it ends", 
+			storeName, 
 			[{jobType: 'sleep', handleFunction: () => sleep(10)}],
 			AsyncStorage(EMPTY_STATE)
 		)
@@ -248,5 +246,60 @@ describe("job subscriptions work correctly", () => {
 		await sleep(20)
 		expect(spy.mock.calls[0][0].jobState).toBe('JOB_STARTED')
 		expect(spy.mock.calls[1][0].jobState).toBe('JOB_DONE')
+	})
+
+	it("Stateful jobs should show intermediate state to subscribers", async () => {
+		const spy = jest.fn()
+
+		const statefulFunction = (currentState, updateState) => async () => {
+			for (let i = 0; i < 10; i++) {
+				await updateState('state' + i)
+				await sleep(10)
+			}
+		}
+
+		const client = await PersistentJobClient(
+			storeName, 
+			[{jobType: 'something', handleFunction: statefulFunction, isStateful: true}],
+			AsyncStorage(EMPTY_STATE)
+		)
+
+		const SOME_TOPIC = 'SOME_TOPIC'
+		client.createJob('something', SOME_TOPIC)()
+		client.subscribe(SOME_TOPIC, (state) => spy(state))
+
+		await sleep(150)
+		expect(spy.mock.calls[0][0].jobState).toBe('JOB_STARTED')
+		for (let i = 1; i < 11; i++) {
+			const {jobState, value} = spy.mock.calls[i][0]
+			expect(jobState).toBe('JOB_INTERMEDIATE')
+			expect(value).toBe('state' + (i - 1))
+		}
+		expect(spy.mock.calls[11][0].jobState).toBe('JOB_DONE')
+	})
+
+	it("When running several subscribers, each subscriber should be notified",async () => {
+		const spy = jest.fn()
+		const spy2 = jest.fn()
+		const spy3 = jest.fn()
+		const client = await PersistentJobClient(
+			storeName, 
+			[{jobType: 'sleep', handleFunction: () => sleep(10)}],
+			AsyncStorage(EMPTY_STATE)
+		)
+
+		const SOME_TOPIC = 'SOME_TOPIC'
+		await client.createJob('sleep', SOME_TOPIC)()
+		client.subscribe(SOME_TOPIC, (state) => spy(state))
+		client.subscribe(SOME_TOPIC, (state) => spy2(state))
+		client.subscribe(SOME_TOPIC, (state) => spy3(state))
+		
+		await sleep(20)
+		expect(spy.mock.calls[0][0].jobState).toBe('JOB_STARTED')
+		expect(spy.mock.calls[1][0].jobState).toBe('JOB_DONE')
+		expect(spy2.mock.calls[0][0].jobState).toBe('JOB_STARTED')
+		expect(spy2.mock.calls[1][0].jobState).toBe('JOB_DONE')
+		expect(spy3.mock.calls[0][0].jobState).toBe('JOB_STARTED')
+		expect(spy3.mock.calls[1][0].jobState).toBe('JOB_DONE')
 	})
 })

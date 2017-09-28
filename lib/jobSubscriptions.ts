@@ -16,7 +16,7 @@ export function JobSubscriptions() {
 	}
 
 	// public
-	function runSubscriptions(topic: string, jobState: any): void {
+	function notifySubscriptions(topic: string, jobState: any): void {
 		subscriptions[topic].forEach(subscription => subscription(jobState))
 	}
 
@@ -27,7 +27,7 @@ export function JobSubscriptions() {
 
 	return {
 		addSubscription,
-		runSubscriptions,
+		notifySubscriptions,
 		removeSubscriptions,
 	}
 }

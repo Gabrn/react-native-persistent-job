@@ -36,7 +36,7 @@ export function JobRunner (
 			job.state = state
 			await jobPersister.updateJob(job)
 
-			if (job.topic) jobSubscriptions.runSubscriptions(job.topic, {jobState: JOB_INTERMEDIATE, value: job.state})
+			if (job.topic) jobSubscriptions.notifySubscriptions(job.topic, {jobState: JOB_INTERMEDIATE, value: job.state})
 		}
 
 		try {
@@ -45,10 +45,10 @@ export function JobRunner (
 				: await jobHandler.handleFunction(...job.args)
 			await jobPersister.clearPersistedJob(job)
 
-			if (job.topic) jobSubscriptions.runSubscriptions(job.topic, {jobState: JOB_DONE})
+			if (job.topic) jobSubscriptions.notifySubscriptions(job.topic, {jobState: JOB_DONE})
 			if (job.topic) jobSubscriptions.removeSubscriptions(job.topic)
 		} catch (e) {
-			if (job.topic) jobSubscriptions.runSubscriptions(job.topic, {jobState: JOB_FAILED})
+			if (job.topic) jobSubscriptions.notifySubscriptions(job.topic, {jobState: JOB_FAILED})
 			addRetry(job)
 		}
 	}
@@ -70,7 +70,6 @@ export function JobRunner (
 
 		const job: Job = {jobType, args, timestamp: Date.now(), id: uuid.v4(), topic}
 		const jobNumbered: JobNumbered = await jobPersister.persistNewJob(job)
-
 		addJob(jobNumbered)
 	} 
 
@@ -83,9 +82,9 @@ export function JobRunner (
 		if (cachedJob) {
 			if (cachedJob.state) {
 				subscription({jobState: JOB_INTERMEDIATE, value: cachedJob.state})
-			}
-
+			} else {
 				subscription({jobState: JOB_STARTED})
+			}
 		} else {
 			subscription({jobState: JOB_NOT_FOUND})
 		}

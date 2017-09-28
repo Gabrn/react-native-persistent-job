@@ -151,19 +151,19 @@ Like for example if we made an http request that fetches some data for the user 
 The most convenient way to do that is with subscriptions (calling the state management library from within the jobs is also an option but not as convenient).
 To subscribe to a job we must first give the job a `topic`. Like this: 
 ```js
-	const jobWithTopic = persistentJob.store().createJob('myJob', 'some_topic')
-	jobWithTopic()
+const jobWithTopic = persistentJob.store().createJob('myJob', 'some_topic')
+jobWithTopic()
 ```
 
 Then after we call the the job we can subscribe to the topic like this:
 ```js
-	// subscribing the job
-	const unsubscribe = persistentJob.store().subscribe('some_topic', (jobTopicOutput) => {
-		console.log('do something')
-	})
+// subscribing the job
+const unsubscribe = persistentJob.store().subscribe('some_topic', (jobTopicOutput) => {
+	console.log('do something')
+})
 
-	// to unsubscribe
-	unsubscribe()
+// to unsubscribe
+unsubscribe()
 ```
 
 * Subsciptions will also work after an application crash, meaning that if we subscribe to a job that failed in the last application run the subscription will still get data from it.
@@ -177,16 +177,16 @@ Then after we call the the job we can subscribe to the topic like this:
 Each jobState meaning is displayed in the `console.log` functions in this example:
 
 ```js 
-	const unsubscribe = persistentJob.store().subscribe('some_topic', (jobTopicOutput) => {
-		if (jobTopicOutput.jobState === 'JOB_STARTED') console.log('job is just starting')
-		if (jobTopicOutput.jobState === 'JOB_DONE') console.log('job finished in this current application run')
-		if (jobTopicOutput.jobState === 'JOB_NOT_FOUND') console.log('job finished in some other application run or was never started')
-		if (jobTopicOutput.jobState === 'JOB_INTERMEDIATE') {
-			console.log('Only stateful jobs have intermediate state, it also has a value which is the current state of the stateful job')
+const unsubscribe = persistentJob.store().subscribe('some_topic', (jobTopicOutput) => {
+	if (jobTopicOutput.jobState === 'JOB_STARTED') console.log('job is just starting')
+	if (jobTopicOutput.jobState === 'JOB_DONE') console.log('job finished in this current application run')
+	if (jobTopicOutput.jobState === 'JOB_NOT_FOUND') console.log('job finished in some other application run or was never started')
+	if (jobTopicOutput.jobState === 'JOB_INTERMEDIATE') {
+		console.log('Only stateful jobs have intermediate state, it also has a value which is the current state of the stateful job')
 
-			console.log(`This is the intermediate state: ${jobTopicOutput.value}, only stateful jobs have value`)
-		}
+		console.log(`This is the intermediate state: ${jobTopicOutput.value}, only stateful jobs have value`)
+	}
 
-		if (jobTopicOutput.jobState === 'JOB_FAILED') console.log('Job failed in this application run, it might restart soon though')
-	})
+	if (jobTopicOutput.jobState === 'JOB_FAILED') console.log('Job failed in this application run, it might restart soon though')
+})
 ```

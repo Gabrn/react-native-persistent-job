@@ -1,6 +1,11 @@
 export type JobSubscription = (jobState: any) => void
 export type RemoveSubscription = () => void
 
+type JobSubscriptionNotification = {
+	jobState: 'JOB_STARTED' | 'JOB_DONE' | 'JOB_NOT_FOUND' | 'JOB_INTERMEDIATE' | 'JOB_FAILED', 
+	value?: any
+}
+
 export function JobSubscriptions() {
 	const subscriptions: {[topic: string]: Set<JobSubscription>} = {}
 
@@ -16,8 +21,8 @@ export function JobSubscriptions() {
 	}
 
 	// public
-	function notifySubscriptions(topic: string, jobState: any): void {
-		subscriptions[topic].forEach(subscription => subscription(jobState))
+	function notifySubscriptions(topic: string, notification: JobSubscriptionNotification): void {
+		subscriptions[topic].forEach(subscription => subscription(notification))
 	}
 
 	// public

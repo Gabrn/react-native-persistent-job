@@ -17,13 +17,13 @@ type HandleFuncitonStateless = (...args: any[]) => Promise<void>
 type JobHandlerStateful = {
 	isStateful: true,
 	jobType: string,
-	handleFunction: HandleFunctionStateful
+	handleFunction: HandleFunctionStateful,
 }
 
 type JobHandlerStateless = {
 	isStateful?: false,
 	jobType: string,
-	handleFunction: HandleFuncitonStateless
+	handleFunction: HandleFuncitonStateless,
 }
 
 export type JobHandler = JobHandlerStateful | JobHandlerStateless

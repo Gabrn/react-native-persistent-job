@@ -21,7 +21,7 @@ export async function PersistentJobClient (
 	const jobRunner = JobRunner(jobHandlersMap, jobPersister, persistedJobs, modifyJobSubject, modifyRetrySubject, limitConccurency)
 
 	return {
-		...jobRunner
+		...jobRunner,
 	}
 }
 

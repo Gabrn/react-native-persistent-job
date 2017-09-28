@@ -96,6 +96,6 @@ export async function JobPersister (
 		updateJob,
 		clearPersistedJob,
 		fetchAllPersistedJobs,
-		clearDoneJobsFromStore
+		clearDoneJobsFromStore,
 	}
 }

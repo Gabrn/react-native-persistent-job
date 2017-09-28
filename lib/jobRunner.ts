@@ -1,10 +1,13 @@
 import {Subject, Observable} from 'rxjs'
 import {Job, JobNumbered, JobHandler} from './jobTypes'
 import {JobPersisterType} from './jobPersistence'
+import {JobSubscriptions, JobSubscription, RemoveSubscription} from './jobSubscriptions'
+import {JOB_DONE, JOB_FAILED, JOB_INTERMEDIATE} from './jobConstants'
 import * as uuid from 'uuid'
 
 export type JobRunnerType = {
-	createJob: (jobType: string) => (...args: Array<any>) => Promise<void>
+	createJob: (jobType: string) => (...args: Array<any>) => Promise<void>,
+	addSubscription: (jobId: string, subscription: JobSubscription) => RemoveSubscription,
 }
 
 export function JobRunner (
@@ -19,6 +22,8 @@ export function JobRunner (
 	const job$ = modifyJobSubject ? modifyJobSubject(jobSubject.asObservable()) : jobSubject.asObservable()
 	const retrySubject = new Subject<JobNumbered>()
 	const retry$ = modifyRetrySubject ? modifyRetrySubject(retrySubject.asObservable()) : retrySubject.asObservable()
+	const jobSubscriptions = JobSubscriptions()
+
 	const addJob = (job: JobNumbered) => jobSubject.next({...job, id: uuid.v4()})
 	const addRetry = (job: JobNumbered) => retrySubject.next(job)
 
@@ -30,6 +35,8 @@ export function JobRunner (
 		const updateState = async (state: any) => {
 			job.state = state
 			await jobPersister.updateJob(job)
+
+			jobSubscriptions.runSubscriptions(job.id, {jobState: JOB_INTERMEDIATE, value: job.state})
 		}
 
 		try {
@@ -38,7 +45,10 @@ export function JobRunner (
 				: await jobHandler.handleFunction(...job.args)
 			await jobPersister.clearPersistedJob(job)
 
+			jobSubscriptions.runSubscriptions(job.id, {jobState: JOB_DONE})
+			jobSubscriptions.removeSubscriptions(job.id)
 		} catch (e) {
+			jobSubscriptions.runSubscriptions(job.id, {jobState: JOB_FAILED})
 			addRetry(job)
 		}
 	}
@@ -65,6 +75,7 @@ export function JobRunner (
 	} 
 
 	return {
-		createJob
+		createJob,
+		addSubscription: jobSubscriptions.addSubscription,
 	}
 }

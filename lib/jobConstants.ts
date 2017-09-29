@@ -1,5 +1,0 @@
-export const JOB_DONE = 'JOB_DONE'
-export const JOB_FAILED = 'JOB_FAILED'
-export const JOB_INTERMEDIATE = 'JOB_INTERMEDIATE'
-export const JOB_STARTED = 'JOB_STARTED'
-export const JOB_NOT_FOUND = 'JOB_NOT_FOUND'

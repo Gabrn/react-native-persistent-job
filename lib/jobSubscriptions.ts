@@ -1,3 +1,7 @@
+import {
+	Job,
+} from './jobTypes'
+
 export type JobSubscription = (jobState: any) => void
 export type RemoveSubscription = () => void
 
@@ -7,7 +11,13 @@ type JobSubscriptionNotification = {
 }
 
 export function JobSubscriptions() {
+	const topics: {[topic: string]: Job} = {}
 	const subscriptions: {[topic: string]: Set<JobSubscription>} = {}
+
+	// public
+	function addTopic(topic: string, job: Job): void {
+		topics[topic] = job
+	}
 
 	// public
 	function addSubscription(topic: string, subscription: JobSubscription): RemoveSubscription {
@@ -15,6 +25,18 @@ export function JobSubscriptions() {
 			subscriptions[topic].add(subscription)
 		} else {
 			subscriptions[topic] = new Set([subscription])
+		}
+
+		const job = topics[topic]
+
+		if (job) {
+			if (job.state) {
+				subscription({jobState: 'JOB_INTERMEDIATE', value: job.state})
+			} else {
+				subscription({jobState: 'JOB_STARTED'})
+			}
+		} else {
+			subscription({jobState: 'JOB_NOT_FOUND'})
 		}
 
 		return () => subscriptions[topic].delete(subscription)
@@ -34,5 +56,6 @@ export function JobSubscriptions() {
 		addSubscription,
 		notifySubscriptions,
 		removeSubscriptions,
+		addTopic,
 	}
 }

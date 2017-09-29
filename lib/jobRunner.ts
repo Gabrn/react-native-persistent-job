@@ -2,7 +2,6 @@ import {Subject, Observable} from 'rxjs'
 import {Job, JobNumbered, JobHandler} from './jobTypes'
 import {JobPersisterType} from './jobPersistence'
 import {JobSubscriptions, JobSubscription, RemoveSubscription} from './jobSubscriptions'
-import {JOB_DONE, JOB_FAILED, JOB_INTERMEDIATE, JOB_STARTED, JOB_NOT_FOUND} from './jobConstants'
 import * as uuid from 'uuid'
 
 export type JobRunnerType = {
@@ -19,7 +18,10 @@ export function JobRunner (
 	limitConccurency?: number,
 ) {
 	const jobSubject = new Subject<JobNumbered>()
-	const job$ = modifyJobSubject ? modifyJobSubject(jobSubject.asObservable()) : jobSubject.asObservable()
+	const job$ = Observable
+		.concat(Observable.from(initialJobs || []), jobSubject.asObservable())
+		.do(job => job.topic && jobSubscriptions.addTopic(job.topic, job))
+	const modifiedJob$ = modifyJobSubject? modifyJobSubject(job$) : job$
 	const retrySubject = new Subject<JobNumbered>()
 	const retry$ = modifyRetrySubject ? modifyRetrySubject(retrySubject.asObservable()) : retrySubject.asObservable()
 	const jobSubscriptions = JobSubscriptions()
@@ -36,7 +38,7 @@ export function JobRunner (
 			job.state = state
 			await jobPersister.updateJob(job)
 
-			if (job.topic) jobSubscriptions.notifySubscriptions(job.topic, {jobState: JOB_INTERMEDIATE, value: job.state})
+			if (job.topic) jobSubscriptions.notifySubscriptions(job.topic, {jobState: 'JOB_INTERMEDIATE', value: job.state})
 		}
 
 		try {
@@ -45,16 +47,15 @@ export function JobRunner (
 				: await jobHandler.handleFunction(...job.args)
 			await jobPersister.clearPersistedJob(job)
 
-			if (job.topic) jobSubscriptions.notifySubscriptions(job.topic, {jobState: JOB_DONE, value})
+			if (job.topic) jobSubscriptions.notifySubscriptions(job.topic, {jobState: 'JOB_DONE', value})
 			if (job.topic) jobSubscriptions.removeSubscriptions(job.topic)
 		} catch (e) {
-			if (job.topic) jobSubscriptions.notifySubscriptions(job.topic, {jobState: JOB_FAILED, value: e})
+			if (job.topic) jobSubscriptions.notifySubscriptions(job.topic, {jobState: 'JOB_FAILED', value: e})
 			addRetry(job)
 		}
 	}
 
-	Observable
-		.concat(Observable.from(initialJobs || []), job$)
+	modifiedJob$
 		.flatMap(
 			job => Observable.fromPromise(jobObserver(job)),
 			limitConccurency
@@ -69,31 +70,16 @@ export function JobRunner (
 		}
 
 		const job: Job = {jobType, args, timestamp: Date.now(), id: uuid.v4(), topic}
+		if (topic) {
+			jobSubscriptions.addTopic(topic, job)
+		}
+		
 		const jobNumbered: JobNumbered = await jobPersister.persistNewJob(job)
 		addJob(jobNumbered)
 	} 
 
-	// public
-	function subscribe(topic: string, subscription: JobSubscription) {
-		const removeSubscription = jobSubscriptions.addSubscription(topic, subscription)
-		
-		const cachedJob = jobPersister.getCachedJob(topic)
-
-		if (cachedJob) {
-			if (cachedJob.state) {
-				subscription({jobState: JOB_INTERMEDIATE, value: cachedJob.state})
-			} else {
-				subscription({jobState: JOB_STARTED})
-			}
-		} else {
-			subscription({jobState: JOB_NOT_FOUND})
-		}
-		
-		return removeSubscription
-	}
-
 	return {
 		createJob,
-		subscribe,
+		subscribe: jobSubscriptions.addSubscription,
 	}
 }

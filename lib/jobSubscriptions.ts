@@ -45,6 +45,9 @@ export function JobSubscriptions() {
 	// public
 	function notifySubscriptions(topic: string, notification: JobSubscriptionNotification): void {
 		subscriptions[topic].forEach(subscription => subscription(notification))
+		if (notification.jobState === 'JOB_DONE') {
+			delete topics[topic]
+		}
 	}
 
 	// public

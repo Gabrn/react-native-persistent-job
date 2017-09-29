@@ -40,15 +40,15 @@ export function JobRunner (
 		}
 
 		try {
-			jobHandler.isStateful 
+			const value = jobHandler.isStateful 
 				? await jobHandler.handleFunction(job.state, updateState)(...job.args)
 				: await jobHandler.handleFunction(...job.args)
 			await jobPersister.clearPersistedJob(job)
 
-			if (job.topic) jobSubscriptions.notifySubscriptions(job.topic, {jobState: JOB_DONE})
+			if (job.topic) jobSubscriptions.notifySubscriptions(job.topic, {jobState: JOB_DONE, value})
 			if (job.topic) jobSubscriptions.removeSubscriptions(job.topic)
 		} catch (e) {
-			if (job.topic) jobSubscriptions.notifySubscriptions(job.topic, {jobState: JOB_FAILED})
+			if (job.topic) jobSubscriptions.notifySubscriptions(job.topic, {jobState: JOB_FAILED, value: e})
 			addRetry(job)
 		}
 	}

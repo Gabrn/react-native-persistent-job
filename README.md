@@ -179,14 +179,21 @@ Each jobState meaning is displayed in the `console.log` functions in this exampl
 ```js 
 const unsubscribe = persistentJob.store().subscribe('some_topic', (jobTopicOutput) => {
 	if (jobTopicOutput.jobState === 'JOB_STARTED') console.log('job is just starting')
-	if (jobTopicOutput.jobState === 'JOB_DONE') console.log('job finished in this current application run')
+	if (jobTopicOutput.jobState === 'JOB_DONE') {
+		console.log('job finished in this current application run')
+		console.log(`This is the value the job finished with: ${jobTopicOutput.value}`)
+	} 
 	if (jobTopicOutput.jobState === 'JOB_NOT_FOUND') console.log('job finished in some other application run or was never started')
 	if (jobTopicOutput.jobState === 'JOB_INTERMEDIATE') {
 		console.log('Only stateful jobs have intermediate state, it also has a value which is the current state of the stateful job')
 
-		console.log(`This is the intermediate state: ${jobTopicOutput.value}, only stateful jobs have value`)
+		console.log(`This is the intermediate state value: ${jobTopicOutput.value}`)
 	}
 
-	if (jobTopicOutput.jobState === 'JOB_FAILED') console.log('Job failed in this application run, it might restart soon though')
+	if (jobTopicOutput.jobState === 'JOB_FAILED') {
+		console.log('Job failed in this application run, it might restart soon though')
+
+		console.log(`This is the error ${jobTopicOutput.value}`)		
+	} 
 })
 ```

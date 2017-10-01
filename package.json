@@ -6,7 +6,7 @@
   "main": "./src/index",
   "scripts": {
     "test": "npm run build && jest ./test",
-    "build": "rm -rf ./src && tsc",
+    "build": "rm -rf ./src && tsc -p tsconfig.json",
     "prepublish": "npm run build"
   },
   "author": "Gabi Nir <gabinir@gmail.com>",

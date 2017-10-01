@@ -39,7 +39,7 @@ export function JobSubscriptions() {
 			subscription({jobState: 'JOB_NOT_FOUND'})
 		}
 
-		return () => subscriptions[topic].delete(subscription)
+		return () => subscriptions[topic] && subscriptions[topic].delete(subscription)
 	}
 
 	// public
@@ -48,7 +48,7 @@ export function JobSubscriptions() {
 	}
 
 	// public
-	function removeSubscriptions(topic: string): void {
+	function removeTopic(topic: string): void {
 		delete subscriptions[topic]
 		delete topics[topic]
 	}
@@ -56,7 +56,7 @@ export function JobSubscriptions() {
 	return {
 		addSubscription,
 		notifySubscriptions,
-		removeSubscriptions,
+		removeTopic,
 		addTopic,
 	}
 }

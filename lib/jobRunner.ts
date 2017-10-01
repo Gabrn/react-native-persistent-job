@@ -48,7 +48,7 @@ export function JobRunner (
 			await jobPersister.clearPersistedJob(job)
 
 			if (job.topic) jobSubscriptions.notifySubscriptions(job.topic, {jobState: 'JOB_DONE', value})
-			if (job.topic) jobSubscriptions.removeSubscriptions(job.topic)
+			if (job.topic) jobSubscriptions.removeTopic(job.topic)
 		} catch (e) {
 			if (job.topic) jobSubscriptions.notifySubscriptions(job.topic, {jobState: 'JOB_FAILED', value: e})
 			addRetry(job)

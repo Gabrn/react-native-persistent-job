@@ -155,7 +155,7 @@ const jobWithTopic = persistentJob.store().createJob('myJob', 'some_topic')
 jobWithTopic()
 ```
 
-Then after we call the the job we can subscribe to the topic like this:
+Then we can subscribe to the topic like this (it is also possible to subscribe to a topic before we run the job, the first value we will receive is JOB_NOT_FOUND though, after that we will receive the rest of the states):
 ```js
 // subscribing the job
 const unsubscribe = persistentJob.store().subscribe('some_topic', (jobTopicOutput) => {

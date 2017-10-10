@@ -145,9 +145,9 @@ persistentStatelessJob('john')
 persistentStatefulJob('mary')
 ```
 
-## jobModifiers
+## jobHandlerModifiers
 ### `limitJobRuns`
-Limits the number of possible failures a particular job type can have before it is terminated
+Limits the number of possible failures a particular job can have before it is terminated
 * example
 ```js
 import persistentJob, {jobHandlerModifiers} from 'react-native-persistent-job'

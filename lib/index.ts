@@ -4,9 +4,11 @@ import {PersistentJobClient as _PersistentJobClient, PersistentJobClientType} fr
 import _transformAsyncStorage from './utils/transformAsyncStorage'
 import {JobNumbered, JobHandler} from './jobTypes'
 import * as _streamModifiers from './streamModifiers'
+import * as _jobHandlerModifiers from './jobHandlerModifiers'
 export const transformAsyncStorage = _transformAsyncStorage
 export const PersistentJobClient = _PersistentJobClient
 export const streamModifiers = _streamModifiers
+export const jobHandlerModifiers = _jobHandlerModifiers
 
 type Params = {
 	storeName?: string, 

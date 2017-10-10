@@ -5,6 +5,8 @@ export type Job = {
 	id: string,
 	state?: any,
 	topic?: string,
+	terminated?: boolean,
+	extraPersistentData?: {},
 }
 
 export type JobNumbered = Job & {
@@ -12,16 +14,16 @@ export type JobNumbered = Job & {
 }
 
 type UpdateState = (state: any) => Promise<void> 
-type HandleFunctionStateful = (currentState: any, updateState: UpdateState) => (...args: any[]) => Promise<void>
-type HandleFuncitonStateless = (...args: any[]) => Promise<void>
+export type HandleFunctionStateful = (currentState: any, updateState: UpdateState) => (...args: any[]) => Promise<void>
+export type HandleFuncitonStateless = (...args: any[]) => Promise<void>
 
-type JobHandlerStateful = {
+export type JobHandlerStateful = {
 	isStateful: true,
 	jobType: string,
 	handleFunction: HandleFunctionStateful,
 }
 
-type JobHandlerStateless = {
+export type JobHandlerStateless = {
 	isStateful?: false,
 	jobType: string,
 	handleFunction: HandleFuncitonStateless,

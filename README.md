@@ -145,6 +145,25 @@ persistentStatelessJob('john')
 persistentStatefulJob('mary')
 ```
 
+## jobModifiers
+### `limitJobRuns`
+Limits the number of possible failures a particular job type can have before it is terminated
+* example
+```js
+import persistentJob, {jobHandlerModifiers} from 'react-native-persistent-job'
+
+const logIt = (a, b, c) => console.log(a, b, c)
+
+await persistentJob.initializeStore({
+	jobHandlers: [
+		jobHandlerModifiers.limitJobRuns(3)({jobType: 'logIt', handleFunction: logIt}) // here we modify the handler to run failing jobs only 3 times max.
+	]
+})
+
+const persistentLogIt = persistentJob.store().createJob('logIt')
+persistentLogIt('valueForA', 'valueForB', 'valueForC') // will only run 3 times
+```
+
 ## Subscriptions 
 Many times when async operations are running it's good to give some sort of indication for better user experience.
 Like for example if we made an http request that fetches some data for the user we might want to show a spinner that indicated the request is still active.

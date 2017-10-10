@@ -34,7 +34,8 @@ export async function JobPersister (
 		jobType: job.jobType, 
 		serialNumber: job.serialNumber, 
 		timestamp: job.timestamp,
-		state: job.state
+		state: job.state,
+		extraPersistentData: job.extraPersistentData,
 	})
 	const getJobKey = (serialNumber: number) => `${prefix}:${storeName}:${serialNumber}`
 

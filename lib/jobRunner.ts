@@ -45,8 +45,9 @@ export function JobRunner (
 			const value = jobHandler.isStateful 
 				? await jobHandler.handleFunction(job.state, updateState)(...job.args)
 				: await jobHandler.handleFunction(...job.args)
+				
 			await jobPersister.clearPersistedJob(job)
-
+			
 			if (job.topic) jobSubscriptions.notifySubscriptions(job.topic, {jobState: 'JOB_DONE', value})
 			if (job.topic) jobSubscriptions.removeTopic(job.topic)
 		} catch (e) {

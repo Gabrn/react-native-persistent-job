@@ -53,7 +53,7 @@ export async function JobPersister (
 
 	// public
 	async function updateJob(job: JobNumbered): Promise<void> {
-		await asyncStorage.setItem(getJobKey(currentSerialNumber), {...stripPersistentFields(job), isDone: false})
+		await asyncStorage.setItem(getJobKey(job.serialNumber), {...stripPersistentFields(job), isDone: false})
 	}
 
 	// public

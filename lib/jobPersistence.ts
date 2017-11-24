@@ -42,10 +42,11 @@ export async function JobPersister (
 	// public 
 	async function persistNewJob(job: Job): Promise<JobNumbered> {
 		currentSerialNumber++
-		const jobNumbered: JobNumbered = {...job, serialNumber: currentSerialNumber}
+		const serialNumber = currentSerialNumber
+		const jobNumbered: JobNumbered = {...job, serialNumber}
 
 		await asyncStorage.setItem(serialNumberKey, currentSerialNumber)
-		await asyncStorage.setItem(getJobKey(currentSerialNumber), {...stripPersistentFields(jobNumbered), isDone: false})
+		await asyncStorage.setItem(getJobKey(serialNumber), {...stripPersistentFields(jobNumbered), isDone: false})
 
 		return jobNumbered
 	}

@@ -1,4 +1,5 @@
 import {PersistentJobClient} from '../src/persistentJobClient'
+import noRetries from '../src/streamModifiers/retryStream/noRetries'
 import AsyncStorage from './asyncStorage'
 import {JobStorageStateManager} from './jobStorageState'
 import uuid from 'uuid'
@@ -229,6 +230,39 @@ describe('Jobs run correctly', () => {
 	})
 })
 
+describe("No race conditions on job writes",() => {
+	const SlowAsyncStorage = (state) => {
+		const innerAsyncStorage = AsyncStorage(state)
+
+		const setItem = async (key, item) => {
+			await sleep(20)
+			await innerAsyncStorage.setItem(key, item)
+		}
+
+		return {
+			...innerAsyncStorage,
+			setItem,
+		}
+	}
+	it("When writing multiple jobs to async storage they don't override eachother", async () => {
+		const trackedStorageState = {}
+
+		const client = await PersistentJobClient(
+			"someStore", 
+			[{jobType: 'nullFunction', handleFunction: ()=>{throw 'noGood'}}],
+			SlowAsyncStorage(trackedStorageState),
+			null, noRetries
+		)
+
+		await Promise.all([client.createJob('nullFunction')(), client.createJob('nullFunction')()])
+		
+		await sleep(60)
+
+		expect(trackedStorageState['@react-native-persisted-job:someStore:currentSerialNumber']).toBe(2)
+		expect(trackedStorageState['@react-native-persisted-job:someStore:1']).not.toBe(undefined)
+		expect(trackedStorageState['@react-native-persisted-job:someStore:2']).not.toBe(undefined)
+	})
+})
 describe("job subscriptions work correctly", () => {
 	it("When a subscriber subscribes to a job it sees when the job starts and when it ends", async () => {
 		const spy = jest.fn()

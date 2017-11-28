@@ -9,6 +9,11 @@
     "build": "rm -rf ./src && tsc -p tsconfig.json",
     "prepublish": "npm run build"
   },
+  "keywords": [
+    "javascript",
+    "react-native",
+    "storage"
+  ],
   "author": "Gabi Nir <gabinir@gmail.com>",
   "license": "MIT",
   "dependencies": {

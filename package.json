@@ -13,8 +13,7 @@
   "license": "MIT",
   "dependencies": {
     "rxjs": "^5.4.2",
-    "uuid": "^3.1.0",
-    "tslib": "^1.7.1"
+    "uuid": "^3.1.0"
   },
   "devDependencies": {
     "@types/react-native": "^0.46.7",
@@ -23,7 +22,8 @@
     "babel-preset-react": "^6.24.1",
     "babel-preset-stage-2": "^6.24.1",
     "typescript": "^2.4.2",
-    "jest": "^20.0.4"
+    "jest": "^20.0.4",
+    "tslib": "^1.7.1"
   },
   "peerDependencies": {
     "react-native": ">= 0.36.0"

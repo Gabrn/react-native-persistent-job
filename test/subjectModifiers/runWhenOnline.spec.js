@@ -7,7 +7,7 @@ function NetInfo() {
 
 	// public
 	function addEventListener(type, handler) {
-		if (type != 'change') throw "This mock supports only 'change' events"
+		if (type != 'connectionChange') throw "This mock supports only 'connectionChange' events"
 
 		listeners.push(handler)
 	}

@@ -32,7 +32,7 @@ function NetInfo() {
 	}
 }
 
-const sleep = time => new Promise(res => setTimeout(() => res(), time))
+const sleep = time => new Promise(res => setTimeout(() => res(), time * 4))
 const FunctionId = f => ({
 	id: uuid.v4(),
 	handleFunction: f

@@ -2,14 +2,14 @@ import 'babel-polyfill';
 import withBackoff from '../../../src/streamModifiers/retryStream/withBackoff'
 import {Subject} from 'rxjs'
 
-const sleep = time => new Promise(res => setTimeout(() => res(), time))
+const sleep = time => new Promise(res => setTimeout(() => res(), time * 4))
 
 describe('withBackoff', () => {
 	it('The subscriber will run after a delay based on the retry number, initial wait time, max wait time and the backoffMethod', async () => {
 		const stream = new Subject()
 		const spy = jest.fn()
 		
-		withBackoff.exponential(10, 50)(stream.asObservable()).subscribe(spy)
+		withBackoff.exponential(10 * 4, 50 * 4)(stream.asObservable()).subscribe(spy)
 		
 		stream.next({}) // 10 sec delay
 		await sleep(5)

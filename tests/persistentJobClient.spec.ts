@@ -28,7 +28,7 @@ const Job = (jobType) => (...args) => ({
 	timestamp: Date.now()
 })
 
-const sleep = time => new Promise(res => setTimeout(() => res(), time))
+const sleep = time => new Promise(res => setTimeout(() => res(), time * 4))
 
 const storeName = 'store'
 

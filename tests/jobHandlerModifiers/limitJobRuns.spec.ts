@@ -4,7 +4,7 @@ import AsyncStorage from '../asyncStorage'
 import limitJobRuns from '../../src/jobHandlerModifiers/limitJobRuns'
 
 const EMPTY_STATE = {}
-const sleep = time => new Promise(res => setTimeout(res, time))
+const sleep = time => new Promise(res => setTimeout(res, time * 4))
 
 describe('limitJobRuns works correctly', () => {
 	it('After all retries are done job should not run', async () => {

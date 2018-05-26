@@ -1,6 +1,6 @@
+import 'babel-polyfill';
 import {PersistentJobClient} from '../../src/persistentJobClient'
 import AsyncStorage from '../asyncStorage'
-import {JobStorageStateManager} from '../jobStorageState'
 import limitJobRuns from '../../src/jobHandlerModifiers/limitJobRuns'
 
 const EMPTY_STATE = {}

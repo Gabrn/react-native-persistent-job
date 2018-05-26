@@ -15,7 +15,7 @@ export type JobNumbered = Job & {
 
 type UpdateState = (state: any) => Promise<void> 
 export type HandleFunctionStateful = (currentState: any, updateState: UpdateState) => (...args: any[]) => Promise<void>
-export type HandleFuncitonStateless = (...args: any[]) => Promise<void>
+export type HandleFuncitonStateless = (...args: any[]) => Promise<any>
 
 export type JobHandlerStateful = {
 	isStateful: true,

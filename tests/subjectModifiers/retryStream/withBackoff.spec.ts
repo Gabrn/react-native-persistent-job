@@ -1,3 +1,4 @@
+import 'babel-polyfill';
 import withBackoff from '../../../src/streamModifiers/retryStream/withBackoff'
 import {Subject} from 'rxjs'
 

@@ -1,13 +1,13 @@
 {
   "name": "react-native-persistent-job",
-  "version": "2.6.5",
+  "version": "2.7.3",
   "repository": "https://github.com/GabiNir/react-native-persistent-job",
   "description": "",
-  "main": "./src/index",
+  "main": "./lib/index.js",
+  "typings": "./lib/index.d.ts",
   "scripts": {
-    "test": "npm run build && jest ./test",
-    "build": "rm -rf ./src && tsc -p tsconfig.json",
-    "prepublish": "npm run build"
+    "test": "jest --config jest.config.json",
+    "build": "tsc -p tsconfig.json"
   },
   "keywords": [
     "javascript",
@@ -18,17 +18,21 @@
   "license": "MIT",
   "dependencies": {
     "rxjs": "^5.4.2",
-    "uuid": "^3.1.0",
-    "tslib": "^1.7.1"
+    "tslib": "^1.7.1",
+    "uuid": "^3.1.0"
   },
   "devDependencies": {
+    "@types/jest": "^22.2.3",
     "@types/react-native": "^0.46.7",
+    "babel-polyfill": "^6.26.0",
     "babel-preset-es2015": "^6.24.1",
     "babel-preset-es2017": "^6.24.1",
     "babel-preset-react": "^6.24.1",
     "babel-preset-stage-2": "^6.24.1",
-    "typescript": "^2.4.2",
-    "jest": "^20.0.4"
+    "jest": "^20.0.4",
+    "regenerator-runtime": "^0.11.1",
+    "ts-jest": "^22.4.6",
+    "typescript": "^2.4.2"
   },
   "peerDependencies": {
     "react-native": ">= 0.36.0"

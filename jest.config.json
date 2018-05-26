@@ -1,0 +1,23 @@
+{
+    "roots": ["<rootDir>/tests"],
+    "moduleNameMapper": {
+        "\\.(jpg|jpeg|png|svg)$": "<rootDir>/tests/unit/jest/fileMock.js"
+    },
+    "transform": {
+      "^.+\\.tsx?$": "ts-jest",
+      "^.+\\.jsx?$": "<rootDir>/node_modules/babel-jest"
+    },
+    "testRegex": "(/tests/.*\\.spec)\\.ts",
+    "moduleFileExtensions": [
+      "ts",
+      "js",
+      "json",
+      "node"
+    ],
+    "globals": {
+      "ts-jest": {
+        "useBabelrc": true,
+        "tsConfigFile": "./tsconfig.json"
+      }
+    }
+}

@@ -1,3 +1,4 @@
+import 'babel-polyfill';
 import uuid from 'uuid'
 import runWhenOnline from '../../src/streamModifiers/runWhenOnline'
 import {Subject} from 'rxjs'
@@ -36,12 +37,12 @@ const FunctionId = f => ({
 	id: uuid.v4(),
 	handleFunction: f
 })
-describe('Jobs run only when the device is online', () => {
+describe('Jobs run only when online', () => {
 	it('When online runs, when offline doesnt', async () => {
 		const stream = new Subject()
 		const spy = jest.fn()
 		const netInfo = NetInfo()
-		const a = runWhenOnline(netInfo)(stream.asObservable()).subscribe(job => job.handleFunction())
+		runWhenOnline(netInfo)(stream.asObservable()).subscribe(job => job.handleFunction())
 		
 		stream.next(
 			FunctionId(() => spy('first'))

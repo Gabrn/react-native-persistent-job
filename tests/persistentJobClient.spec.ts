@@ -1,3 +1,4 @@
+import 'babel-polyfill';
 import {PersistentJobClient} from '../src/persistentJobClient'
 import noRetries from '../src/streamModifiers/retryStream/noRetries'
 import AsyncStorage from './asyncStorage'
@@ -28,9 +29,7 @@ const Job = (jobType) => (...args) => ({
 })
 
 const sleep = time => new Promise(res => setTimeout(() => res(), time))
-const immediately = () => new Promise(res => setImmediate(() => res()))
 
-const assertFalse = () => setTimeout(() => expect(true).toBeFalsy, 10)
 const storeName = 'store'
 
 describe('Jobs run correctly', () => {
@@ -44,7 +43,7 @@ describe('Jobs run correctly', () => {
 			stateManager.simulateJobFinish(i)
 		}
 
-		const client = await PersistentJobClient(
+		await PersistentJobClient(
 			storeName, 
 			[{jobType: SPY_JOB, handleFunction: spy}],
 			AsyncStorage(stateManager.state)
@@ -70,7 +69,7 @@ describe('Jobs run correctly', () => {
 		stateManager.simulateAddJob(SpyJob(shouldNotBeCalled))
 		stateManager.simulateJobFinish(2)
 
-		const client = await PersistentJobClient(
+		await PersistentJobClient(
 			storeName, 
 			[{jobType: SPY_JOB, handleFunction: spy}],
 			AsyncStorage(stateManager.state)
@@ -83,8 +82,6 @@ describe('Jobs run correctly', () => {
 	})
 
 	it('New jobs should run', async () => {
-		const SpyJob = Job(SPY_JOB)
-
 		const shouldBeCalled = createCallMe()
 
 		const client = await PersistentJobClient(
@@ -117,8 +114,8 @@ describe('Jobs run correctly', () => {
 				storeName, 
 				[{jobType: 'runAndFail', handleFunction: runAndFail, isStateful: true}],
 				asyncStorage,
-				null,
-				subject => subject.filter(x => false)
+				undefined,
+				subject => subject.filter(() => false)
 			)	
 			
 		client.createJob('runAndFail')()
@@ -132,10 +129,10 @@ describe('Jobs run correctly', () => {
 				storeName, 
 				[{jobType: 'runAndFail', handleFunction: runAndFail, isStateful: true}],
 				asyncStorage,
-				null,
+				undefined,
 
 				// shut down the retry stream
-				subject => subject.filter(x => false)
+				subject => subject.filter(() => false)
 			)	
 
 			expect(spy.mock.calls[i][0]).toBe(i)
@@ -180,8 +177,8 @@ describe('Jobs run correctly', () => {
 			'When running several jobs and concurrency limit is on jobs run do not run concurrently',
 			[{jobType: 'runAndSleep', handleFunction: runAndSleep}],
 			asyncStorage,
-			null,
-			null,
+			undefined,
+			undefined,
 			1
 		)
 
@@ -210,8 +207,8 @@ describe('Jobs run correctly', () => {
 			'When running several jobs and concurrency limit is set to 2, run two jobs at a time',
 			[{jobType: 'runAndSleep', handleFunction: runAndSleep}],
 			asyncStorage,
-			null,
-			null,
+			undefined,
+			undefined,
 			2
 		)
 
@@ -251,7 +248,7 @@ describe("No race conditions on job writes",() => {
 			"someStore", 
 			[{jobType: 'nullFunction', handleFunction: ()=>{throw 'noGood'}}],
 			SlowAsyncStorage(trackedStorageState),
-			null, noRetries
+			undefined, noRetries
 		)
 
 		await Promise.all([client.createJob('nullFunction')(), client.createJob('nullFunction')()])
@@ -259,8 +256,8 @@ describe("No race conditions on job writes",() => {
 		await sleep(60)
 
 		expect(trackedStorageState['@react-native-persisted-job:someStore:currentSerialNumber']).toBe(2)
-		expect(trackedStorageState['@react-native-persisted-job:someStore:1']).not.toBe(undefined)
-		expect(trackedStorageState['@react-native-persisted-job:someStore:2']).not.toBe(undefined)
+		expect(trackedStorageState['@react-native-persisted-job:someStore:1']).toBeDefined()
+		expect(trackedStorageState['@react-native-persisted-job:someStore:2']).toBeDefined()
 	})
 })
 describe("job subscriptions work correctly", () => {
@@ -285,7 +282,7 @@ describe("job subscriptions work correctly", () => {
 	it("Stateful jobs should show intermediate state to subscribers", async () => {
 		const spy = jest.fn()
 
-		const statefulFunction = (currentState, updateState) => async () => {
+		const statefulFunction = (_, updateState) => async () => {
 			for (let i = 0; i < 10; i++) {
 				await updateState('state' + i)
 				await sleep(10)

@@ -1,7 +1,8 @@
 {
     "compilerOptions": {
-        "outDir": "./src/",
-        "rootDir": "./lib/",
+        "outDir": "./lib/",
+        "rootDir": "./src/",
+        "declaration": true,
         "sourceMap": true,
         "noImplicitAny": false,
         "module": "commonjs",
@@ -18,8 +19,9 @@
         "suppressImplicitAnyIndexErrors": true
     },
     "include": [
-        "lib/**/*",
-        "__tests__/**/*",
-        "types/*.d.ts"
+        "src/**/*",
+        "tests/**/*",
+        "types/*.d.ts",
+        "node_modules/@types"
     ]
 }
